@@ -15,7 +15,7 @@ import java.util.List;
  * Created by melkor on 7/31/16.
  */
 public class RodViewer {
-    List<RigidRod> rods = new ArrayList<>();
+    List<DrawableRod> rods = new ArrayList<>();
     BufferedImage display;
     String status = "";
     int width = 512;
@@ -52,11 +52,11 @@ public class RodViewer {
     public RodViewer(){
 
     }
-    void addRod(RigidRod rod){
+    public void addRod(DrawableRod rod){
         rods.add(rod);
     }
 
-    void buildGui(){
+    public void buildGui(){
         JFrame frame= new JFrame();
         frame.setContentPane(panel);
         frame.pack();
@@ -73,18 +73,20 @@ public class RodViewer {
         double[] Bxy = new double[2];
         g2d.setColor(Color.BLACK);
         g2d.drawString(status, 50, 50);
-        for(RigidRod  rod: rods){
-            for(int i = 0;i<rod.N-1; i++){
+        for(DrawableRod rod: rods){
+            List<Point> points = rod.getPoints();
+            for(int i = 0;i<points.size()-1; i++){
 
-                getTransformed(rod.points[i], Axy);
-                getTransformed(rod.points[i+1], Bxy);
+                getTransformed(points.get(i), Axy);
+                getTransformed(points.get(i+1), Bxy);
                 g2d.setColor(Color.RED);
                 g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
                 g2d.setColor(Color.BLUE);
                 g2d.fillOval((int)Axy[0]-2, (int)Axy[1] - 2, 4, 4);
 
             }
-            getTransformed(rod.points[rod.N-1], Axy);
+
+            getTransformed(points.get(points.size()-1), Axy);
             g2d.setColor(Color.BLUE);
             g2d.fillOval((int)Axy[0]-2, (int)Axy[1] - 2, 4, 4);
 
