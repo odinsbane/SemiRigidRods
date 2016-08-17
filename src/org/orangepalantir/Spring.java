@@ -1,6 +1,11 @@
 package org.orangepalantir;
 
+import javax.imageio.ImageIO;
 import java.awt.EventQueue;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by msmith on 17/08/16.
@@ -9,7 +14,9 @@ public class Spring {
     double s0 = 0.2;
     double k = 100;
     final Attachment a, b;
-    static double dt = 1e-4;
+    static double dt = 1e-3;
+    static double time = 0;
+    static String tag;
     public Spring(Attachment a, Attachment b){
         this.a = a;
         this.b = b;
@@ -30,6 +37,12 @@ public class Spring {
     }
 
     public static void main(String[] args){
+        tag = new Random().ints().limit(5).mapToObj(i ->{
+
+            int v = i<0?(-i)%26:i%26;
+            char a = (char)(v + 'a');
+            return a+"";
+        }).collect(Collectors.joining());
         RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 51, 2);
         RigidRod r1 = new RigidRod(new Point(0, 0.3, 0), new Vector(-1, 0, 0), 51, 2);
 
@@ -65,10 +78,11 @@ public class Spring {
         EventQueue.invokeLater(()->{
             viewer.buildGui();
         });
-
+        double lastWrite = -1;
+        int count = 0;
+        outer:
         while(viewer.displays()){
             double s = 0;
-            double sLast = -1;
             for(int j = 0; j<1000; j++){
                 spring0.applyForces();
                 spring1.applyForces();
@@ -78,24 +92,34 @@ public class Spring {
 
                 r0.clearForces();
                 r1.clearForces();
-                if(sLast<0){
-                    sLast = s;
-                } else{
-                    double decrease = (sLast - s)/s;
-                    if(Math.abs(decrease)<0.00001){
-                        //relaxed.
-                        stepAttachments(spring0, walkingA, walkingB);
+
+                if(s<1e-2){
+                        if(time - lastWrite >= 0.01 ){
+                            try {
+                                viewer.setStatus(String.format("%2.2f: %e", time, s));
+                                viewer.repaint();
+                                String fname = String.format("XX%s-%03d.png", tag, count++);
+                                ImageIO.write(viewer.display, "PNG", new File(fname));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            lastWrite = time;
+                        }
+                    //relaxed.
+                    stepAttachments(spring0, walkingA, walkingB);
+                    if(time>=2) {
+                        System.exit(0);
                     }
-                    sLast = s;
                 }
             }
-            viewer.setStatus("" + s);
+            viewer.setStatus(time + ":  " + s);
             viewer.repaint();
         }
 
     }
 
     static void stepAttachments(Spring s, RigidRodAttachment a, RigidRodAttachment b){
+        time += dt;
         Vector v = s.getForce();
         Vector t0 = a.rod.getTangent(a.loc);
         Vector p = t0.projection(v);
