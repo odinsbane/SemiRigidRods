@@ -10,6 +10,11 @@ public class Point{
         this.y=y;
         this.z=z;
     }
+    public Point(double[] xyz){
+        this.x = xyz[0];
+        this.y = xyz[1];
+        this.z = xyz[2];
+    }
 
     /**
      * Copies 3 coordinates into the provided array.

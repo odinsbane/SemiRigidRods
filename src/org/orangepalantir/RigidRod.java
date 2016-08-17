@@ -47,6 +47,7 @@ public class RigidRod implements DrawableRod{
     public void clearForces(){
         Arrays.fill(appliedForces, 0.0);
     }
+
     public void applyForce(double fx, double fy, double fz, double location){
         int dex = (int)((location + length*0.5)/ds0);
         if(dex>=N){
@@ -129,8 +130,8 @@ public class RigidRod implements DrawableRod{
         System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
         Vector t0 = new Vector(points[0], points[1]);
 
-        //apply spring for to first two points.
-        double fMag = Kspring*(t0.length - ds0)/t0.length;
+        //apply spring force to first two points.
+        double fMag = Kspring*(t0.length - ds0);
         int high = 3;
         int mid = 0;
         int low;
@@ -147,18 +148,16 @@ public class RigidRod implements DrawableRod{
         totalForces[high+2] += -f;
         totalForces[mid+2] += f;
 
-        t0.normalize();
-
         Vector t1;
         for(int i = 1; i<N-1; i++){
-            Point back = points[i-1];
+
             Point current = points[i];
             Point front = points[i+1];
 
             t1 = new Vector(current, front);
 
             //only apply spring force forward to current.
-            fMag = (t1.length - ds0)/t1.length*Kspring;
+            fMag = (t1.length - ds0)*Kspring;
             high = 3*(i+1);
             mid = 3*i;
             low = 3*(i-1);
@@ -175,21 +174,20 @@ public class RigidRod implements DrawableRod{
             totalForces[high+2] += -f;
             totalForces[mid+2] += f;
 
-            t1.normalize();
-
 
             //bending forces
             double t2x = t1.dx + t0.dx;
             double t2y = t1.dy + t0.dy;
             double t2z = t1.dz + t0.dz;
+
             Vector t2 = new Vector(t2x, t2y, t2z);
-            t2.normalize();
 
             Vector projection = t2.projection(t0);
 
             Vector bend = t0.minus(projection);
 
-            fMag = Kbend;
+            fMag = Kbend*bend.length;
+
             f=fMag*bend.dx;
             totalForces[low] += f;
             totalForces[high] += f;
@@ -223,6 +221,7 @@ public class RigidRod implements DrawableRod{
         RodViewer viewer = new RodViewer();
         viewer.addRod(r0);
         viewer.addRod(br);
+        viewer.setSelected(r0);
         EventQueue.invokeLater(viewer::buildGui);
         while(viewer.displays()){
             double s = 0;
@@ -287,10 +286,30 @@ public class RigidRod implements DrawableRod{
             p.z = data[current+2];
         }
     }
+
+    public Vector getTangent(double loc) {
+
+        double dexter = (loc + length*0.5)/ds0;
+        if(dexter>=N-1){
+            //dex=N-1;
+            Vector v = new Vector(points[N-2], points[N-1]);
+            return v;
+        } else if(dexter<=0){
+            Vector v = new Vector(points[0], points[1]);
+            return v;
+        }
+        double f = dexter - (int)dexter;
+        int low = (int)dexter;
+        int high= low + 1;
+
+        Vector v = new Vector(points[low], points[high]);
+        return v;
+    }
 }
 
 class AnalyticBentRod implements DrawableRod{
     List<Point> points = new ArrayList<>();
+
     double A,B;
     int N = 100;
     public AnalyticBentRod(double length, double force){
@@ -317,5 +336,10 @@ class AnalyticBentRod implements DrawableRod{
     @Override
     public List<Point> getPoints() {
         return points;
+    }
+
+    @Override
+    public void getPoint(double location, double[] pt) {
+        //whatever.
     }
 }

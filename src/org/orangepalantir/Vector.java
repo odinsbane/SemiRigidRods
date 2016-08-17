@@ -4,12 +4,28 @@ package org.orangepalantir;
  * Created by melkor on 8/2/16.
  */
 public class Vector{
+    double  dx, dy, dz;
+    double length;
 
     public Vector(Point a, Point b){
         dx = b.x - a.x;
         dy = b.y - a.y;
         dz = b.z - a.z;
         length = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+        if(length==0){
+
+            this.dx = 0;
+            this.dy = 0;
+            this.dz = 0;
+
+        } else {
+            dx = dx / length;
+            dy = dy / length;
+            dz = dz / length;
+        }
+
+
     }
 
     /**
@@ -19,10 +35,19 @@ public class Vector{
      * @param dz
      */
     public Vector(double dx, double dy, double dz){
-       this.dx = dx;
-        this.dy = dy;
-        this.dz = dz;
         length = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if(length==0){
+
+            this.dx = 0;
+            this.dy = 0;
+            this.dz = 0;
+
+        } else {
+            this.dx = dx / length;
+            this.dy = dy / length;
+            this.dz = dz / length;
+        }
+
     }
     /**
      * Creates a new vector with the corresponding magnitude in the same direction.
@@ -31,31 +56,23 @@ public class Vector{
      * @param direction direction
      */
     public Vector(double magnitude, Vector direction){
-        dx = direction.dx*magnitude;
-        dy = direction.dy*magnitude;
-        dz = direction.dz*magnitude;
+
+        dx = direction.dx;
+        dy = direction.dy;
+        dz = direction.dz;
+
         length = magnitude;
     }
 
-    double  dx, dy, dz;
-    double length;
-    void normalize(){
-
-        dx = dx/length;
-        dy = dy/length;
-        dz = dz/length;
-        length = 1;
-    }
-
     /**
-     * returns a vector projected along this vector. Both vectors should be normalized.
+     * returns a vector projected along the direction of this vector.
      *
      * @param other
      * @return
      */
     public Vector projection(Vector other){
         double dot = other.dx*dx + other.dy*dy + other.dz*dz;
-        Vector a = new Vector(dot, this);
+        Vector a = new Vector(dot*other.length, this);
         return a;
     }
 

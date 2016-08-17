@@ -7,4 +7,5 @@ import java.util.List;
  */
 public interface DrawableRod {
     List<Point> getPoints();
+    void getPoint(double location, double[] pt);
 }
