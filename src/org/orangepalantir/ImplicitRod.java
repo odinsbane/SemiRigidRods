@@ -1,21 +1,21 @@
 package org.orangepalantir;
 
-import java.awt.EventQueue;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by melkor on 7/31/16.
+ * Created by msmith on 18/08/16.
  */
-public class RigidRod implements DrawableRod{
+public class ImplicitRod implements DrawableRod {
+
     double[] appliedForces;
+    double[][] connections;
+
     public double[] totalForces;
     public Point[] points;
     double k = 100;
     double kappa = 0.0166;
-    double tolerance = 1e-6;
 
     double Kspring;
     double Kbend;
@@ -23,10 +23,11 @@ public class RigidRod implements DrawableRod{
     final public int N;
     double length;
     double ds0;
-    double dt= 1e-4;
+    double dt=1e-4;
 
-    public RigidRod(Point center, Vector direction, int N, double length){
+    public ImplicitRod(Point center, Vector direction, int N, double length){
         this.N = N;
+        connections = new double[N][N];
         this.length = length;
         points = new Point[N];
         appliedForces = new double[3*N];
@@ -64,10 +65,25 @@ public class RigidRod implements DrawableRod{
     }
 
     public double relax(){
-        double before = prepareInternalForces();
-        return before;
+        prepareInternalForces();
+        return step();
     }
+    private double step(){
+        double sum = 0;
+        for(int i = 0; i<N; i++){
+            Point a = points[i];
+            int dex = 3*i;
 
+            a.x += totalForces[dex]*dt;
+            a.y += totalForces[dex+1]*dt;
+            a.z += totalForces[dex+2]*dt;
+
+            sum += totalForces[dex]*totalForces[dex]
+                    + totalForces[dex+1]*totalForces[dex+1]
+                    + totalForces[dex+2]*totalForces[dex+2];
+        }
+        return Math.sqrt(sum);
+    }
 
     public void step(double dt){
         for(int i = 0; i<N; i++){
@@ -112,7 +128,7 @@ public class RigidRod implements DrawableRod{
         }
     }
 
-    public double prepareInternalForces(){
+    public void prepareInternalForces(){
         System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
         Vector t0 = new Vector(points[0], points[1]);
 
@@ -191,44 +207,7 @@ public class RigidRod implements DrawableRod{
 
             t0 = t1;
         }
-        double sum = 0;
-        double v;
-        for(int i = 0; i<totalForces.length; i++){
-            v = totalForces[i];
-            sum += v*v;
-        }
-        return Math.sqrt(sum);
     }
-
-    public static void main(String[] args){
-        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 51, 2);
-        double f = 0.0025;
-        double c = 0.0;
-        r0.applyForce(c, f, 0, -1.0);
-        r0.applyForce(-c, f, 0, 1.0);
-        r0.applyForce(0, -2*f, 0, 0);
-
-        AnalyticBentRod br = new AnalyticBentRod(2, 2*f/r0.kappa);
-
-
-        RodViewer viewer = new RodViewer();
-        viewer.addRod(r0);
-        viewer.addRod(br);
-        viewer.setSelected(r0);
-        EventQueue.invokeLater(viewer::buildGui);
-        while(viewer.displays()){
-            double s = 0;
-            for(int j = 0; j<1000; j++){
-                s = r0.relax();
-                /*s += r1.relax();
-                s += r2.relax();*/
-            }
-            viewer.setStatus("" + s);
-            viewer.repaint();
-        }
-
-    }
-
 
     @Override
     public List<Point> getPoints() {
@@ -270,7 +249,7 @@ public class RigidRod implements DrawableRod{
 
     }
 
-    public void restorePositions(double[] data, int offset){
+    public void setPositions(double[] data, int offset){
         for(int i = 0; i<points.length; i++){
             int current = i*3 + offset;
             Point p = points[i];
@@ -278,32 +257,6 @@ public class RigidRod implements DrawableRod{
             p.y = data[current+1];
             p.z = data[current+2];
         }
-    }
-
-    public void storePositions(double[] data, int offset){
-        for(int i = 0; i<points.length; i++){
-            Point p = points[i];
-            int current = 3*i + offset;
-            data[current] = p.x;
-            data[current+1] = p.y;
-            data[current+2] = p.z;
-        }
-    }
-
-    public void storeForces(double[] data, int offset){
-        System.arraycopy(totalForces, 0, data, offset, totalForces.length);
-    }
-
-    public void restoreForces(double[] data, int offset){
-        System.arraycopy(data, offset, totalForces, 0, totalForces.length);
-    }
-
-    public int getValueCount(){
-        return 3*N;
-    }
-
-    public int getForceCount(){
-        return 3*N;
     }
 
     public Vector getTangent(double loc) {
@@ -324,41 +277,5 @@ public class RigidRod implements DrawableRod{
         Vector v = new Vector(points[low], points[high]);
         return v;
     }
-}
 
-class AnalyticBentRod implements DrawableRod{
-    List<Point> points = new ArrayList<>();
-
-    double A,B;
-    int N = 100;
-    public AnalyticBentRod(double length, double force){
-        A = force/6.0;
-        B = force*length/4;
-        double ds = length/(N-1);
-        for(int i = 0; i<N; i++){
-            double s = ds*i - length/2;
-            points.add(new Point(s, getHeight(s), 0));
-        }
-    }
-
-    double getHeight(double s){
-        if(s>0){
-            return -A*s*s*s + B*s*s;
-        } else{
-            return A*s*s*s + B*s*s;
-        }
-    }
-
-
-
-
-    @Override
-    public List<Point> getPoints() {
-        return points;
-    }
-
-    @Override
-    public void getPoint(double location, double[] pt) {
-        //whatever.
-    }
 }
