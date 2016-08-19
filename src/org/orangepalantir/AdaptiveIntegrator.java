@@ -139,6 +139,7 @@ public class AdaptiveIntegrator {
         // - accepted? adjust dt and forget everything.
 
         // - rejected? ajust dt to 1/2
+        return 0;
     }
 
     public static void main(String[] args){
