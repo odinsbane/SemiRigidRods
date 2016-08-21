@@ -15,7 +15,6 @@ public class RigidRod implements DrawableRod{
     public Point[] points;
     double k = 100;
     double kappa = 0.0166;
-    double tolerance = 1e-6;
 
     double Kspring;
     double Kbend;
@@ -23,7 +22,6 @@ public class RigidRod implements DrawableRod{
     final public int N;
     double length;
     double ds0;
-    double dt= 1e-4;
 
     public RigidRod(Point center, Vector direction, int N, double length){
         this.N = N;
@@ -44,6 +42,11 @@ public class RigidRod implements DrawableRod{
 
         }
 
+    }
+
+    public void setBendingStiffness(double kappa2){
+        kappa = kappa2;
+        Kbend = kappa/(ds0*ds0);
     }
     public void clearForces(){
         Arrays.fill(appliedForces, 0.0);

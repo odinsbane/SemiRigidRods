@@ -4,6 +4,8 @@ package org.orangepalantir;
  * Created by melkor on 8/2/16.
  */
 public class Vector{
+    public static final Vector ZERO = new Vector(0,0,0);
+
     double  dx, dy, dz;
     double length;
 

@@ -10,10 +10,11 @@ public class AdaptiveIntegrator {
     List<double[]> datas = new ArrayList<>();
     List<double[]> forces = new ArrayList<>();
     double DT = 1e-3;
+    double TOL = 1e-11;
 
     int positionValues;
     int forcesValues;
-
+    double preparedForces = 0;
     public void prepare(List<RigidRod> rods){
         int pTally = 0;
         int fTally = 0;
@@ -104,42 +105,51 @@ public class AdaptiveIntegrator {
     }
 
     public double step(List<RigidRod> rods, List<Spring> springs){
-        //store the original positions.
-        storePositions(0, rods);
-        //apply external forces.
-        applyForces(springs);
-        //prepare the internal forces.
-        prepareInternalForces(rods);
-        //store forces
-        storeForces(0, rods);
-        //take full step
-        stepRods(DT, rods);
-        storePositions(1, rods);
-        //restore 1st positions & 1st forces
-        restorePositions(0, rods);
-        restoreForces(0, rods);
-        //take half-step
-        stepRods(DT/2, rods);
-        //store positions
-        storePositions(2, rods);
+        double error;
+        do {
+            clearForces(rods);
+            //store the original positions.
+            storePositions(0, rods);
+            //apply external forces.
+            applyForces(springs);
+            //prepare the internal forces.
+            preparedForces = prepareInternalForces(rods);
+            //store forces
+            storeForces(0, rods);
+            //take full step
+            stepRods(DT, rods);
+            storePositions(1, rods);
+            //restore 1st positions & 1st forces
+            restorePositions(0, rods);
+            restoreForces(0, rods);
+            //take half-step
+            stepRods(DT / 2, rods);
+            //store positions
+            storePositions(2, rods);
 
-        //re-apply external forces.
-        clearForces(rods);
-        applyForces(springs);
+            //re-apply external forces.
+            clearForces(rods);
+            applyForces(springs);
 
-        //prepare internal forces & store new force state.
-        prepareInternalForces(rods);
-        storeForces(1, rods);
+            //prepare internal forces & store new force state.
+            prepareInternalForces(rods);
+            storeForces(1, rods);
 
-        //take second half step.
-        stepRods(DT/2, rods);
-        storePositions(3, rods);
-        //compare error:
-        double error = calculatePositionError(1, 3);
-        // - accepted? adjust dt and forget everything.
-
+            //take second half step.
+            stepRods(DT / 2, rods);
+            storePositions(3, rods);
+            //compare error:
+            error = calculatePositionError(1, 3);
+            // - accepted? adjust dt and forget everything.
+            if (error < 1.5*TOL) {
+                DT = Math.sqrt(TOL/error)*DT;
+                return preparedForces;
+            } else{
+                DT=DT/2;
+            }
+        } while(error>=1.5*TOL);
         // - rejected? ajust dt to 1/2
-        return 0;
+        return preparedForces;
     }
 
     public static void main(String[] args){
