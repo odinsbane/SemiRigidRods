@@ -98,8 +98,8 @@ public class TwoSpringsAndAMotor {
         RigidRod r1 = new RigidRod(new Point(0, 0.2, 0), new Vector(-1, 0, 0), 121, 2);
         r0.setBendingStiffness(stiffnessFactor*r0.kappa);
         r1.setBendingStiffness(stiffnessFactor*r1.kappa);
-        RigidRodAttachment walkingA = new RigidRodAttachment(-0.25, r0);
-        RigidRodAttachment walkingB = new RigidRodAttachment(-0.25, r1);
+        RigidRodAttachment walkingA = new RigidRodAttachment(-0.0, r0);
+        RigidRodAttachment walkingB = new RigidRodAttachment(-0.0, r1);
 
         Spring spring0 = new Spring(
                 walkingA,
