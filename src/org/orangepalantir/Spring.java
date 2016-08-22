@@ -43,6 +43,22 @@ interface Attachment{
     void applyForce(Vector v);
 }
 
+class StaticAttachement implements Attachment{
+    final Point anchor;
+    public StaticAttachement(Point a){
+        anchor = a;
+    }
+    @Override
+    public Point getAttachment() {
+        return anchor;
+    }
+
+    @Override
+    public void applyForce(Vector v) {
+        //pass
+    }
+}
+
 class RigidRodAttachment implements Attachment{
     double loc;
     RigidRod rod;

@@ -142,9 +142,14 @@ public class AdaptiveIntegrator {
             error = calculatePositionError(1, 3);
             // - accepted? adjust dt and forget everything.
             if (error < 1.5*TOL) {
-                DT = Math.sqrt(TOL/error)*DT;
+                double f = Math.sqrt(TOL/error);
+                if(f>2){
+                    f=2;
+                }
+                DT = f*DT;
                 return preparedForces;
             } else{
+                restoreForces(0, rods);
                 DT=DT/2;
             }
         } while(error>=1.5*TOL);

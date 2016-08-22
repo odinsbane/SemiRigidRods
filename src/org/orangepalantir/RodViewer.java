@@ -3,11 +3,14 @@ package org.orangepalantir;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
@@ -100,26 +103,48 @@ public class RodViewer {
         BufferedImage drawing = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D)drawing.getGraphics();
         g2d.fillRect(0, 0, width, height);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         double[] Axy = new double[2];
         double[] Bxy = new double[2];
         g2d.setColor(Color.BLACK);
         g2d.drawString(status, 50, 50);
+
+
+
+
+
+        float width = 10f;
+        g2d.setStroke(new BasicStroke(width, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
         for(DrawableRod rod: rods){
             List<Point> points = rod.getPoints();
             for(int i = 0;i<points.size()-1; i++){
 
                 getTransformed(points.get(i), Axy);
                 getTransformed(points.get(i+1), Bxy);
-                g2d.setColor(Color.RED);
+
+                double dx = Bxy[0] - Axy[0];
+                double dy = Bxy[1] - Axy[1];
+                double l = Math.sqrt(dx*dx + dy*dy);
+
+                double cx = 0.5*(Bxy[0] + Axy[0]);
+                double cy = 0.5*(Bxy[1] + Axy[1]);
+
+                g2d.setPaint(new GradientPaint(
+                        (float)(cx + width/2*dy/l),
+                        (float)(cy - width/2*dx/l),
+                        Color.RED,
+                        (float)cx,
+                        (float)cy,
+                        Color.WHITE,
+                        true
+                ));
+
                 g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
-                g2d.setColor(Color.BLUE);
-                g2d.fillOval((int)Axy[0]-2, (int)Axy[1] - 2, 4, 4);
+
 
             }
 
-            getTransformed(points.get(points.size()-1), Axy);
-            g2d.setColor(Color.BLUE);
-            g2d.fillOval((int)Axy[0]-2, (int)Axy[1] - 2, 4, 4);
+
 
         }
 
@@ -128,8 +153,11 @@ public class RodViewer {
             getTransformed(s.a.getAttachment(), Axy);
             getTransformed(s.b.getAttachment(), Bxy);
             g2d.setColor(Color.CYAN);
+            g2d.setStroke(new BasicStroke(5f, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
             g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
         }
+
+
         display = drawing;
         panel.repaint();
     }

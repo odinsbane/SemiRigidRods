@@ -30,6 +30,7 @@ public class TwoSpringsAndAMotor {
                 return;
             }
             v = Vector.ZERO;
+            s.k = 0;
         } else {
             v = s.getForce();
         }
@@ -72,12 +73,12 @@ public class TwoSpringsAndAMotor {
                 if (out.exists()) {
                     if (!out.isDirectory()) {
                         System.out.println("Output is not a directory.");
-                        System.out.println("usage: simulation <relax value> directory");
+                        System.out.println("usage: simulation <relax value> <stiffness factor> directory");
                         System.exit(-1);
                     }
                 } else {
                     if (!out.mkdir()) {
-                        System.out.println("Cannot create output directory!");
+                        System.out.println("usage: simulation <relax value> <stiffness factor> directory");
                         System.out.println("usage: simulation <relax value> directory");
                         System.exit(-1);
 
@@ -88,61 +89,60 @@ public class TwoSpringsAndAMotor {
                 saving=false;
             }
         }catch(Exception e){
-            System.out.println("usage: simulation <relax value> directory");
+            System.out.println("usage: simulation <relax value> <stiffness factor> directory");
             e.printStackTrace();
             System.exit(-1);
         }
 
-        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 101, 2);
-        RigidRod r1 = new RigidRod(new Point(0, 0.3, 0), new Vector(-1, 0, 0),101, 2);
+        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 21, 2);
+        RigidRod r1 = new RigidRod(new Point(0, 0.2, 0), new Vector(-1, 0, 0), 21, 2);
         r0.setBendingStiffness(stiffnessFactor*r0.kappa);
         r1.setBendingStiffness(stiffnessFactor*r1.kappa);
         RigidRodAttachment walkingA = new RigidRodAttachment(-0., r0);
         RigidRodAttachment walkingB = new RigidRodAttachment(0, r1);
+
         Spring spring0 = new Spring(
                 walkingA,
                 walkingB
         );
-
-        Spring spring1 = new Spring(
-                new RigidRodAttachment(-0.9, r0),
-                new RigidRodAttachment(1, r1)
-        );
-
-        Spring spring2 = new Spring(
-                new RigidRodAttachment(0.9, r0),
-                new RigidRodAttachment(-1, r1)
-        );
-
-        Spring spring3 = new Spring(
-                new RigidRodAttachment(-0.05, r0),
-                new RigidRodAttachment(-0.05, r1)
-        );
+        List<Spring> springs = new ArrayList<>();
 
         RodViewer viewer = new RodViewer();
 
         List<RigidRod> rods = new ArrayList<>();
-        List<Spring> springs = new ArrayList<>();
-
-        viewer.addRod(r0);
-        viewer.addRod(r1);
 
         rods.add(r0);
         rods.add(r1);
 
+        springs.add(spring0);
+
+        int N = 2;
+        double ds = r0.length/(N-1);
+
+        for(int i = 0; i<N; i++){
+            Spring s = new Spring(
+                    new RigidRodAttachment(-1 + i*ds, r0),
+                    new StaticAttachement(new Point(-1 + i*ds, -0.2, 0))
+            );
+            Spring s2 = new Spring(
+                    new RigidRodAttachment(1 - i*ds, r1),
+                    new StaticAttachement(new Point(-1 + i*ds, 0.4, 0))
+            );
+
+            springs.add(s);
+            springs.add(s2);
+        }
 
 
+        for(RigidRod rod: rods){
+            viewer.addRod(rod);
+        }
+
+        for(Spring spring: springs){
+            viewer.addSpring(spring);
+        }
         viewer.setSelected(r0);
 
-        viewer.addSpring(spring0);
-        viewer.addSpring(spring1);
-        viewer.addSpring(spring2);
-        viewer.addSpring(spring3);
-
-        springs.add(spring0);
-        springs.add(spring1);
-        springs.add(spring2);
-        springs.add(spring3);
         if(gui) {
             EventQueue.invokeLater(viewer::buildGui);
         }
