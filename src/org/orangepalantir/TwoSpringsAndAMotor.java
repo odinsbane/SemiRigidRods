@@ -26,11 +26,11 @@ public class TwoSpringsAndAMotor {
         boolean aAttached = Math.abs(a.loc)<=a.rod.length*0.5;
         boolean bAttached = Math.abs(b.loc)<=b.rod.length*0.5;
         if((!aAttached)||(!bAttached)){
+            s.k = 0;
             if((!aAttached)&&(!bAttached)){
                 return;
             }
             v = Vector.ZERO;
-            s.k = 0;
         } else {
             v = s.getForce();
         }
@@ -43,7 +43,7 @@ public class TwoSpringsAndAMotor {
         }
 
         if(bAttached) {
-
+            v.length = -v.length;
             Vector t1 = b.rod.getTangent(b.loc);
             Vector p = t1.projection(v);
             b.loc += (1 - p.length) * dt;
@@ -94,12 +94,12 @@ public class TwoSpringsAndAMotor {
             System.exit(-1);
         }
 
-        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 21, 2);
-        RigidRod r1 = new RigidRod(new Point(0, 0.2, 0), new Vector(-1, 0, 0), 21, 2);
+        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 121, 2);
+        RigidRod r1 = new RigidRod(new Point(0, 0.2, 0), new Vector(-1, 0, 0), 121, 2);
         r0.setBendingStiffness(stiffnessFactor*r0.kappa);
         r1.setBendingStiffness(stiffnessFactor*r1.kappa);
-        RigidRodAttachment walkingA = new RigidRodAttachment(-0., r0);
-        RigidRodAttachment walkingB = new RigidRodAttachment(0, r1);
+        RigidRodAttachment walkingA = new RigidRodAttachment(-0.25, r0);
+        RigidRodAttachment walkingB = new RigidRodAttachment(-0.25, r1);
 
         Spring spring0 = new Spring(
                 walkingA,
@@ -116,7 +116,7 @@ public class TwoSpringsAndAMotor {
 
         springs.add(spring0);
 
-        int N = 2;
+        int N = 6;
         double ds = r0.length/(N-1);
 
         for(int i = 0; i<N; i++){
