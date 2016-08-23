@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * Created by msmith on 18/08/16.
  */
 public class TwoSpringsAndAMotor {
-    static double dt = 1e-3;
+    static double dt = 1e-6;
     static double time = 0;
     static String tag;
     static boolean saving = false;
@@ -39,18 +39,18 @@ public class TwoSpringsAndAMotor {
             Vector t0 = a.rod.getTangent(a.loc);
             Vector p = t0.projection(v);
 
-            a.loc += (1 - p.length)*dt;
+            a.loc += (1 + p.length)*dt;
         }
 
         if(bAttached) {
             v.length = -v.length;
             Vector t1 = b.rod.getTangent(b.loc);
             Vector p = t1.projection(v);
-            b.loc += (1 - p.length) * dt;
+            b.loc += (1 + p.length) * dt;
         }
 
     }
-
+    final static String usage = "usage: simulation <relax value> <stiffness factor> links directory";
     public static void main(String[] args){
         boolean gui=false;
         tag = new Random().ints().limit(5).mapToObj(i ->{
@@ -62,24 +62,25 @@ public class TwoSpringsAndAMotor {
         double limit = -1;
         File out = null;
         double stiffnessFactor=1;
+        int N = 2;
         try {
 
             limit = Double.parseDouble(args[0]);
             stiffnessFactor = Double.parseDouble(args[1]);
-            if(args.length>=3) {
+            N = Integer.parseInt(args[2]);
+            if(args.length>=4) {
                 gui=false;
                 saving=true;
-                out = new File(args[2]);
+                out = new File(args[3]);
                 if (out.exists()) {
                     if (!out.isDirectory()) {
                         System.out.println("Output is not a directory.");
-                        System.out.println("usage: simulation <relax value> <stiffness factor> directory");
+                        System.out.println();
                         System.exit(-1);
                     }
                 } else {
                     if (!out.mkdir()) {
-                        System.out.println("usage: simulation <relax value> <stiffness factor> directory");
-                        System.out.println("usage: simulation <relax value> directory");
+                        System.out.println(usage);
                         System.exit(-1);
 
                     }
@@ -89,7 +90,7 @@ public class TwoSpringsAndAMotor {
                 saving=false;
             }
         }catch(Exception e){
-            System.out.println("usage: simulation <relax value> <stiffness factor> directory");
+            System.out.println(usage);
             e.printStackTrace();
             System.exit(-1);
         }
@@ -116,21 +117,24 @@ public class TwoSpringsAndAMotor {
 
         springs.add(spring0);
 
-        int N = 6;
         double ds = r0.length/(N-1);
 
+        double springL = 0.2;
         for(int i = 0; i<N; i++){
             Spring s = new Spring(
                     new RigidRodAttachment(-1 + i*ds, r0),
-                    new StaticAttachement(new Point(-1 + i*ds, -0.2, 0))
+                    new RigidRodAttachment(1 - i*ds, r1)
             );
+            s.s0 = springL;
+            /*
             Spring s2 = new Spring(
                     new RigidRodAttachment(1 - i*ds, r1),
-                    new StaticAttachement(new Point(-1 + i*ds, 0.4, 0))
+                    new StaticAttachement(new Point(-1 + i*ds, 0.2 + springL, 0))
             );
-
+            s2.s0 = springL;
+            */
             springs.add(s);
-            springs.add(s2);
+            //springs.add(s2);
         }
 
 
