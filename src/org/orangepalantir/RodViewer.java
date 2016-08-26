@@ -100,7 +100,7 @@ public class RodViewer {
     }
 
     public void repaint(){
-        BufferedImage drawing = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage drawing = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D)drawing.getGraphics();
         g2d.fillRect(0, 0, width, height);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
