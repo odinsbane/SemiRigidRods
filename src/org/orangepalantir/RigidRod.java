@@ -203,6 +203,31 @@ public class RigidRod implements DrawableRod{
         return Math.sqrt(sum);
     }
 
+    public double getMaxCurvature(){
+        double max = 0;
+
+        for(int i = 1; i<points.length-1; i++){
+            Vector t1 = new Vector(points[i-1], points[i]);
+            Vector t2 = new Vector(points[i], points[i+1]);
+            double dx = t2.dx - t1.dx;
+            double dy = t2.dy - t1.dy;
+            double dz = t2.dz - t1.dz;
+            double c = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            max = c>max?c:max;
+        }
+
+        return max;
+    }
+
+    public double getMaxDisplacement(){
+        double pos[] = new double[3];
+        double dir[] = new double[3];
+        getPositionAndDirection(pos, dir);
+        for(int i = 0; i<)
+
+
+    }
+
     public static void main(String[] args){
         RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 51, 2);
         double f = 0.0025;
@@ -351,6 +376,8 @@ class AnalyticBentRod implements DrawableRod{
             return A*s*s*s + B*s*s;
         }
     }
+
+
 
 
 

@@ -29,8 +29,8 @@ public class RodViewer {
     RigidRod selected;
     BufferedImage display;
     String status = "";
-    int width = 512;
-    int height = 512;
+    int width = 800;
+    int height = 800;
     Shape marker;
     Dimension a = new Dimension(width, height);
 
@@ -60,8 +60,8 @@ public class RodViewer {
     };
     JSlider slider = new JSlider();
 
-    double simWidth = 3.0;
-    double simHeight = 3.0;
+    double simWidth = 10.0;
+    double simHeight = 10.0;
 
     public RodViewer(){
 
@@ -102,18 +102,17 @@ public class RodViewer {
     public void repaint(){
         BufferedImage drawing = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D)drawing.getGraphics();
+        g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, width, height);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         double[] Axy = new double[2];
         double[] Bxy = new double[2];
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(status, 50, 50);
 
 
 
 
 
-        float width = 10f;
+        float width = 7f;
         g2d.setStroke(new BasicStroke(width, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
         for(DrawableRod rod: rods){
             List<Point> points = rod.getPoints();
@@ -150,18 +149,47 @@ public class RodViewer {
 
         for(int i = 0; i<springs.size(); i++){
             Spring s = springs.get(i);
-            getTransformed(s.a.getAttachment(), Axy);
-            getTransformed(s.b.getAttachment(), Bxy);
-            g2d.setColor(Color.CYAN);
-            g2d.setStroke(new BasicStroke(5f, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
+
+            Point a = s.a.getAttachment();
+            Point b = getWrappedPoint(a, s.b.getAttachment());
+
+            Vector v = new Vector(a, b);
+            if(v.length>0.4){
+                System.out.println("why?");
+                Point b2 = getWrappedPoint(a, s.b.getAttachment());
+            }
+
+            getTransformed(a, Axy);
+            getTransformed(b, Bxy);
+            g2d.setColor(new Color(0, 0, 255, 100));
+            g2d.setStroke(new BasicStroke(2f, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
             g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
         }
 
+        g2d.setColor(new Color(255, 255, 255, 200));
+        g2d.fillRect(25,35, this.width-50, 20);
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(status, 50, 50);
 
         display = drawing;
         panel.repaint();
     }
+    double[] space = new double[6];
+    public Point getWrappedPoint(Point a, Point b){
+        a.getPosition(space);
+        b.getPosition(space, 3);
 
+        return new Point(
+                space[0] + wrap(space[3] - space[0]),
+                space[1] + wrap(space[4] - space[1]),
+                space[2] + wrap(space[5] - space[2])
+        );
+    }
+    double wrap(double delta){
+        double hw = simWidth/2;
+        return  delta > hw ? delta - simWidth :
+                delta < -hw/2 ? delta + simWidth : delta;
+    }
     void getTransformed(Point r, double[] tran){
 
         tran[0] = (r.x + simWidth/2) *width/simWidth;
@@ -178,7 +206,12 @@ public class RodViewer {
         return true;
     }
 
-    void addSpring(Spring s){
+    public void addSpring(Spring s){
         springs.add(s);
+    }
+
+    public void setSimWidth(double width) {
+        this.simWidth = width;
+        this.simHeight = width;
     }
 }

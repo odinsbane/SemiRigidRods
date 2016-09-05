@@ -7,7 +7,7 @@ public class Vector{
     public static final Vector ZERO = new Vector(0,0,0);
 
     double  dx, dy, dz;
-    double length;
+    public double length;
 
     public Vector(Point a, Point b){
         dx = b.x - a.x;
