@@ -223,9 +223,23 @@ public class RigidRod implements DrawableRod{
         double pos[] = new double[3];
         double dir[] = new double[3];
         getPositionAndDirection(pos, dir);
-        for(int i = 0; i<)
+        double max = -1;
+        for(int i = 0; i<points.length; i++){
 
+            double s = i*ds0 - length/2;
+            double x = pos[0] + s*dir[0];
+            double y = pos[1] + s*dir[1];
+            double z = pos[2] + s*dir[2];
 
+            Point a = points[i];
+            double dx = x - a.x;
+            double dy = y - a.y;
+            double dz = z - a.z;
+            double d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            max = max>d?max:d;
+        }
+
+        return max;
     }
 
     public static void main(String[] args){
