@@ -205,18 +205,30 @@ public class RigidRod implements DrawableRod{
 
     public double getMaxCurvature(){
         double max = 0;
-
+        double sum = 0;
         for(int i = 1; i<points.length-1; i++){
-            Vector t1 = new Vector(points[i-1], points[i]);
-            Vector t2 = new Vector(points[i], points[i+1]);
-            double dx = t2.dx - t1.dx;
-            double dy = t2.dy - t1.dy;
-            double dz = t2.dz - t1.dz;
-            double c = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            double c = getCurvature(i);
+            sum += c;
             max = c>max?c:max;
         }
+        max = sum/(points.length-2);
 
         return max;
+    }
+
+    public double getCurvature(int i){
+
+        if(i<1||i>=points.length){
+            return 0;
+        }
+
+        Vector t1 = new Vector(points[i-1], points[i]);
+        Vector t2 = new Vector(points[i], points[i+1]);
+        double dx = t2.dx - t1.dx;
+        double dy = t2.dy - t1.dy;
+        double dz = t2.dz - t1.dz;
+        double c = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        return c;
     }
 
     public double getMaxDisplacement(){

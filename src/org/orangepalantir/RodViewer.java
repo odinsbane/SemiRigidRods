@@ -18,6 +18,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by melkor on 7/31/16.
@@ -27,7 +29,7 @@ public class RodViewer {
     List<Spring> springs = new ArrayList<>();
 
     RigidRod selected;
-    BufferedImage display;
+    public BufferedImage display;
     String status = "";
     int width = 800;
     int height = 800;
@@ -113,10 +115,30 @@ public class RodViewer {
 
 
         float width = 7f;
+        double maxCurve = 0.5;
+        Pattern pat = Pattern.compile("max-curvature: ([0-9.]*)");
+        Matcher match = pat.matcher(status);
+        if(match.find()){
+
+            maxCurve = Double.parseDouble(match.group(1))*2;
+            if(maxCurve==0){
+                maxCurve = 1;
+            }
+        }
         g2d.setStroke(new BasicStroke(width, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
         for(DrawableRod rod: rods){
             List<Point> points = rod.getPoints();
             for(int i = 0;i<points.size()-1; i++){
+
+                Color color;
+                if(rod instanceof RigidRod){
+                    double c = ((RigidRod)rod).getCurvature(i);
+                    c = c>maxCurve?maxCurve:c;
+                    float f = (float)(c/maxCurve);
+                    color = new Color(f, 1, f);
+                } else{
+                    color = Color.WHITE;
+                }
 
                 getTransformed(points.get(i), Axy);
                 getTransformed(points.get(i+1), Bxy);
@@ -134,7 +156,7 @@ public class RodViewer {
                         Color.RED,
                         (float)cx,
                         (float)cy,
-                        Color.WHITE,
+                        color,
                         true
                 ));
 
@@ -146,7 +168,7 @@ public class RodViewer {
 
 
         }
-
+        /*
         for(int i = 0; i<springs.size(); i++){
             Spring s = springs.get(i);
 
@@ -165,7 +187,7 @@ public class RodViewer {
             g2d.setStroke(new BasicStroke(2f, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
             g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
         }
-
+        */
         g2d.setColor(new Color(255, 255, 255, 200));
         g2d.fillRect(25,35, this.width-50, 20);
         g2d.setColor(Color.BLACK);
