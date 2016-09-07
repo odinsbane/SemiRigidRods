@@ -1,6 +1,7 @@
 package org.orangepalantir;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +15,12 @@ public class Spring {
     protected double s0 = 0.2;
     protected double k = 100;
     protected final Attachment a, b;
+    private Color color;
+
     public Spring(Attachment a, Attachment b){
         this.a = a;
         this.b = b;
+        setColor(new Color(255, 200, 255, 155));
     }
 
     protected Vector getForce(){
@@ -35,5 +39,13 @@ public class Spring {
 
     public void setRestLength(double length) {
         s0 = length;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 }

@@ -66,21 +66,18 @@ public class RigidRod implements DrawableRod{
 
     }
 
-    public double relax(){
-        double before = prepareInternalForces();
-        return before;
-    }
-
-
     public void step(double dt){
-        for(int i = 0; i<N; i++){
-            Point a = points[i];
-            int dex = 3*i;
+        double attempts = 2;
+        for(int j = 0; j<attempts; j++){
+            for(int i = 0; i<N; i++) {
+                Point a = points[i];
+                int dex = 3 * i;
 
-            a.x += totalForces[dex]*dt;
-            a.y += totalForces[dex+1]*dt;
-            a.z += totalForces[dex+2]*dt;
-
+                a.x += totalForces[dex] * dt/attempts;
+                a.y += totalForces[dex + 1] * dt/attempts;
+                a.z += totalForces[dex + 2] * dt/attempts;
+            }
+            if(j<attempts-1) prepareInternalForces();
         }
     }
 
@@ -269,13 +266,15 @@ public class RigidRod implements DrawableRod{
         viewer.addRod(r0);
         viewer.addRod(br);
         viewer.setSelected(r0);
+        double[] original = new double[r0.getValueCount()];
+        double[] full = new double[r0.getValueCount()];
+        double[] next = new double[r0.getValueCount()];
         EventQueue.invokeLater(viewer::buildGui);
         while(viewer.displays()){
             double s = 0;
             for(int j = 0; j<1000; j++){
-                s = r0.relax();
-                /*s += r1.relax();
-                s += r2.relax();*/
+                s=r0.prepareInternalForces();
+                r0.step(0.001);
             }
             viewer.setStatus("" + s);
             viewer.repaint();

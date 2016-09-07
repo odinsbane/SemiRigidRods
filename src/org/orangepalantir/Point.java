@@ -38,4 +38,17 @@ public class Point{
         a[offset+1] = y;
         a[offset+2] = z;
     }
+
+    /**
+     * Adds a vector to the position of this point.
+     *
+     * @param v
+     * @return new point.
+     */
+    public Point add(Vector v) {
+        return new Point(
+                x + v.length*v.dx,
+                y + v.length*v.dy,
+                z + v.length*v.dz);
+    }
 }

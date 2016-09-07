@@ -5,5 +5,5 @@ package org.orangepalantir;
  */
 public interface Attachment {
     Point getAttachment();
-    void applyForce(Vector v);
+    default void applyForce(Vector v){}
 }

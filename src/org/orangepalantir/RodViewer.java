@@ -2,6 +2,7 @@ package org.orangepalantir;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -37,6 +38,7 @@ public class RodViewer {
     Dimension a = new Dimension(width, height);
 
     JPanel panel = new JPanel(){
+
         protected void paintComponent(Graphics g){
             if(display!=null){
                 g.drawImage(display, 0, 0, this);
@@ -76,10 +78,10 @@ public class RodViewer {
         JFrame frame= new JFrame();
         JPanel outer = new JPanel();
         outer.setLayout(new BorderLayout());
-        outer.add(panel, BorderLayout.CENTER);
+        outer.add(new JScrollPane(panel), BorderLayout.CENTER);
         outer.add(slider, BorderLayout.SOUTH);
         frame.setContentPane(outer);
-        frame.pack();
+        frame.setSize(640, 480);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         slider.addChangeListener(evt->{
@@ -109,8 +111,8 @@ public class RodViewer {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         double[] Axy = new double[2];
         double[] Bxy = new double[2];
-
-
+        double[] shiftA = new double[2];
+        double[] shiftB = new double[2];
 
 
 
@@ -126,6 +128,7 @@ public class RodViewer {
             }
         }
         g2d.setStroke(new BasicStroke(width, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
+        Rectangle2D rect = new Rectangle2D.Double(0, 0, this.width, this.height);
         for(DrawableRod rod: rods){
             List<Point> points = rod.getPoints();
             for(int i = 0;i<points.size()-1; i++){
@@ -147,20 +150,37 @@ public class RodViewer {
                 double dy = Bxy[1] - Axy[1];
                 double l = Math.sqrt(dx*dx + dy*dy);
 
-                double cx = 0.5*(Bxy[0] + Axy[0]);
-                double cy = 0.5*(Bxy[1] + Axy[1]);
+                for(int tx = -1; tx<2; tx++){
+                    for(int ty = -1; ty<2; ty++){
+                        shiftA[0] = Axy[0] + tx*this.width;
+                        shiftA[1] = Axy[1] + ty*this.width;
+                        shiftB[0] = Bxy[0] + tx*this.width;
+                        shiftB[1] = Bxy[1] + ty*this.width;
 
-                g2d.setPaint(new GradientPaint(
-                        (float)(cx + width/2*dy/l),
-                        (float)(cy - width/2*dx/l),
-                        Color.RED,
-                        (float)cx,
-                        (float)cy,
-                        color,
-                        true
-                ));
+                        if(
+                                (!rect.contains(shiftA[0], shiftA[1]))
+                                        &&
+                                (!rect.contains(shiftB[0], shiftB[1]))
+                                                                       ){
+                            continue;
+                        }
 
-                g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
+                        double cx = 0.5*(shiftB[0] + shiftA[0]);
+                        double cy = 0.5*(shiftB[1] + shiftA[1]);
+
+                        g2d.setPaint(new GradientPaint(
+                                (float)(cx + width/2*dy/l),
+                                (float)(cy - width/2*dx/l),
+                                Color.RED,
+                                (float)cx,
+                                (float)cy,
+                                color,
+                                true
+                        ));
+
+                        g2d.drawLine((int)shiftA[0], (int)shiftA[1],(int)shiftB[0], (int)shiftB[1]);
+                    }
+                }
 
 
             }
@@ -168,7 +188,7 @@ public class RodViewer {
 
 
         }
-        /*
+
         for(int i = 0; i<springs.size(); i++){
             Spring s = springs.get(i);
 
@@ -176,18 +196,15 @@ public class RodViewer {
             Point b = getWrappedPoint(a, s.b.getAttachment());
 
             Vector v = new Vector(a, b);
-            if(v.length>0.4){
-                System.out.println("why?");
-                Point b2 = getWrappedPoint(a, s.b.getAttachment());
-            }
 
             getTransformed(a, Axy);
             getTransformed(b, Bxy);
-            g2d.setColor(new Color(0, 0, 255, 100));
+
+            g2d.setColor(s.getColor());
             g2d.setStroke(new BasicStroke(2f, BasicStroke.JOIN_ROUND, BasicStroke.CAP_ROUND));
             g2d.drawLine((int)Axy[0], (int)Axy[1],(int)Bxy[0], (int)Bxy[1]);
         }
-        */
+
         g2d.setColor(new Color(255, 255, 255, 200));
         g2d.fillRect(25,35, this.width-50, 20);
         g2d.setColor(Color.BLACK);

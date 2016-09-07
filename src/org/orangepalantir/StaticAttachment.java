@@ -12,9 +12,4 @@ public class StaticAttachment implements Attachment{
     public Point getAttachment() {
         return anchor;
     }
-
-    @Override
-    public void applyForce(Vector v) {
-        //pass
-    }
 }
