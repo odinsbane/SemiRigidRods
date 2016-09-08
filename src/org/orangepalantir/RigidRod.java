@@ -67,7 +67,7 @@ public class RigidRod implements DrawableRod{
     }
 
     public void step(double dt){
-        double attempts = 2;
+        double attempts = 6;
         for(int j = 0; j<attempts; j++){
             for(int i = 0; i<N; i++) {
                 Point a = points[i];

@@ -20,7 +20,7 @@ public class Spring {
     public Spring(Attachment a, Attachment b){
         this.a = a;
         this.b = b;
-        setColor(new Color(255, 200, 255, 155));
+        setColor(new Color(255, 255, 255, 0));
     }
 
     protected Vector getForce(){
