@@ -200,6 +200,18 @@ public class RigidRod implements DrawableRod{
         return Math.sqrt(sum);
     }
 
+    public double calculateEnergy(){
+        double energy = 0;
+
+        for(int i = 1; i<N-1; i++){
+
+        }
+
+
+        return energy;
+
+    }
+
     public double getMaxCurvature(){
         double max = 0;
         double sum = 0;
