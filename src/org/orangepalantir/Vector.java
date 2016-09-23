@@ -16,7 +16,7 @@ public class Vector{
         length = Math.sqrt(dx*dx + dy*dy + dz*dz);
 
         if(length==0){
-
+            //why?
             this.dx = 0;
             this.dy = 0;
             this.dz = 0;
@@ -83,6 +83,27 @@ public class Vector{
      *
      */
     public Vector minus(Vector other){
-        return new Vector(dx - other.dx, dy - other.dy, dz - other.dz);
+
+        return new Vector(dx*length - other.dx*other.length, dy*length - other.dy*other.length, dz*length - other.dz*other.length);
+
     }
+
+    /**
+     * returns a vector that is this vector minus the arguments.
+     *
+     */
+    public Vector add(Vector other){
+
+        return new Vector(dx*length + other.dx*other.length, dy*length + other.dy*other.length, dz*length + other.dz*other.length);
+
+    }
+
+    /**
+     * Sets the length to 1, unless the length is already 0.
+     */
+    public void normalize(){
+        length = length==0?0:1;
+    }
+
+
 }

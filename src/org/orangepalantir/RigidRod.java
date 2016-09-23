@@ -112,6 +112,94 @@ public class RigidRod implements DrawableRod{
         }
     }
 
+    public double prepareInternalForces2(){
+        System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
+        Vector t0 = new Vector(points[0], points[1]);
+
+        //apply spring force to first two points.
+        double fMag = Kspring*(t0.length - ds0);
+        int high = 3;
+        int mid = 0;
+        int low;
+
+        double f = t0.dx*fMag;
+        totalForces[high] += -f;
+        totalForces[mid] += f;
+
+        f = t0.dy*fMag;
+        totalForces[high+1] += -f;
+        totalForces[mid+1] += f;
+
+        f = t0.dz*fMag;
+        totalForces[high+2] += -f;
+        totalForces[mid+2] += f;
+
+        Vector t1;
+        for(int i = 1; i<N-1; i++){
+
+            Point current = points[i];
+            Point front = points[i+1];
+
+            t1 = new Vector(current, front);
+
+            //only apply spring force forward to current.
+            fMag = (t1.length - ds0)*Kspring;
+            high = 3*(i+1);
+            mid = 3*i;
+            low = 3*(i-1);
+
+            f = t1.dx*fMag;
+            totalForces[high] += -f;
+            totalForces[mid] += f;
+
+            f = t1.dy*fMag;
+            totalForces[high+1] += -f;
+            totalForces[mid+1] += f;
+
+            f = t1.dz*fMag;
+            totalForces[high+2] += -f;
+            totalForces[mid+2] += f;
+
+
+            //bending forces
+            double t2x = t1.dx + t0.dx;
+            double t2y = t1.dy + t0.dy;
+            double t2z = t1.dz + t0.dz;
+
+            Vector t2 = new Vector(t2x, t2y, t2z);
+
+            Vector projection = t2.projection(t0);
+
+            Vector bend = t0.minus(projection);
+
+            fMag = Kbend*bend.length;
+
+            f=fMag*bend.dx;
+            totalForces[low] += f;
+            totalForces[high] += f;
+            totalForces[mid] -= 2*f;
+
+            f=fMag*bend.dy;
+            totalForces[low+1] += f;
+            totalForces[high+1] += f;
+            totalForces[mid+1] -= 2*f;
+
+            f=fMag*bend.dz;
+            totalForces[low+2] += f;
+            totalForces[high+2] += f;
+            totalForces[mid+2] -= 2*f;
+
+            t0 = t1;
+        }
+        double sum = 0;
+        double v;
+        for(int i = 0; i<totalForces.length; i++){
+            v = totalForces[i];
+            sum += v*v;
+        }
+        return Math.sqrt(sum);
+    }
+
     public double prepareInternalForces(){
         System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
         Vector t0 = new Vector(points[0], points[1]);
