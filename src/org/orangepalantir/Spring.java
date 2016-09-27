@@ -20,7 +20,7 @@ public class Spring {
     public Spring(Attachment a, Attachment b){
         this.a = a;
         this.b = b;
-        setColor(new Color(255, 255, 255, 0));
+        setColor(new Color(255, 255, 255, 155));
     }
 
     protected Vector getForce(){
@@ -35,6 +35,13 @@ public class Spring {
         a.applyForce(force);
         force.length = -force.length;
         b.applyForce(force);
+    }
+    double separation(Point a, Point b){
+        return Math.sqrt((a.x - b.x)*(a.x-b.x) + (a.y - b.y)*(a.y-b.y) + (a.z - b.z)*(a.z - b.z));
+    }
+    public double getEnergy(){
+        double s = separation(a.getAttachment(), b.getAttachment()) - s0;
+        return 0.5*k* s*s;
     }
 
     public void setRestLength(double length) {

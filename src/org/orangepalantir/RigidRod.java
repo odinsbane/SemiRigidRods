@@ -14,7 +14,7 @@ public class RigidRod implements DrawableRod{
     public double[] totalForces;
     public Point[] points;
     double k = 100;
-    double kappa = 0.0166;
+    double kappa = 0.166;
 
     double Kspring;
     double Kbend;
@@ -112,96 +112,9 @@ public class RigidRod implements DrawableRod{
         }
     }
 
-    public double prepareInternalForces2(){
-        System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
-        Vector t0 = new Vector(points[0], points[1]);
-
-        //apply spring force to first two points.
-        double fMag = Kspring*(t0.length - ds0);
-        int high = 3;
-        int mid = 0;
-        int low;
-
-        double f = t0.dx*fMag;
-        totalForces[high] += -f;
-        totalForces[mid] += f;
-
-        f = t0.dy*fMag;
-        totalForces[high+1] += -f;
-        totalForces[mid+1] += f;
-
-        f = t0.dz*fMag;
-        totalForces[high+2] += -f;
-        totalForces[mid+2] += f;
-
-        Vector t1;
-        for(int i = 1; i<N-1; i++){
-
-            Point current = points[i];
-            Point front = points[i+1];
-
-            t1 = new Vector(current, front);
-
-            //only apply spring force forward to current.
-            fMag = (t1.length - ds0)*Kspring;
-            high = 3*(i+1);
-            mid = 3*i;
-            low = 3*(i-1);
-
-            f = t1.dx*fMag;
-            totalForces[high] += -f;
-            totalForces[mid] += f;
-
-            f = t1.dy*fMag;
-            totalForces[high+1] += -f;
-            totalForces[mid+1] += f;
-
-            f = t1.dz*fMag;
-            totalForces[high+2] += -f;
-            totalForces[mid+2] += f;
-
-
-            //bending forces
-            double t2x = t1.dx + t0.dx;
-            double t2y = t1.dy + t0.dy;
-            double t2z = t1.dz + t0.dz;
-
-            Vector t2 = new Vector(t2x, t2y, t2z);
-
-            Vector projection = t2.projection(t0);
-
-            Vector bend = t0.minus(projection);
-
-            fMag = Kbend*bend.length;
-
-            f=fMag*bend.dx;
-            totalForces[low] += f;
-            totalForces[high] += f;
-            totalForces[mid] -= 2*f;
-
-            f=fMag*bend.dy;
-            totalForces[low+1] += f;
-            totalForces[high+1] += f;
-            totalForces[mid+1] -= 2*f;
-
-            f=fMag*bend.dz;
-            totalForces[low+2] += f;
-            totalForces[high+2] += f;
-            totalForces[mid+2] -= 2*f;
-
-            t0 = t1;
-        }
-        double sum = 0;
-        double v;
-        for(int i = 0; i<totalForces.length; i++){
-            v = totalForces[i];
-            sum += v*v;
-        }
-        return Math.sqrt(sum);
-    }
-
     public double prepareInternalForces(){
         System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
+        //smearForces(appliedForces, totalForces);
         Vector t0 = new Vector(points[0], points[1]);
 
         //apply spring force to first two points.
@@ -223,12 +136,16 @@ public class RigidRod implements DrawableRod{
         totalForces[mid+2] += f;
 
         Vector t1;
+        double r0p = t0.length/ds0;
+        double r1p, t0t1;
+        double fa, fb;
         for(int i = 1; i<N-1; i++){
 
             Point current = points[i];
             Point front = points[i+1];
 
             t1 = new Vector(current, front);
+            r1p = t1.length/ds0;
 
             //only apply spring force forward to current.
             fMag = (t1.length - ds0)*Kspring;
@@ -250,34 +167,29 @@ public class RigidRod implements DrawableRod{
 
 
             //bending forces
-            double t2x = t1.dx + t0.dx;
-            double t2y = t1.dy + t0.dy;
-            double t2z = t1.dz + t0.dz;
+            t0t1 = (t0.dx*t1.dx + t0.dy*t1.dy + t0.dz*t1.dz);
 
-            Vector t2 = new Vector(t2x, t2y, t2z);
+            fa = Kbend*t0t1/r0p*t0.dx - Kbend/r0p*t1.dx;
+            fb = Kbend/r1p*t0.dx - Kbend*t0t1*t1.dx;
 
-            Vector projection = t2.projection(t0);
+            totalForces[low] += fa;
+            totalForces[high] += fb;
+            totalForces[mid] -= (fa + fb);
 
-            Vector bend = t0.minus(projection);
+            fa = Kbend*t0t1/r0p*t0.dy - Kbend/r0p*t1.dy;
+            fb = Kbend/r1p*t0.dy - Kbend*t0t1*t1.dy;
+            totalForces[low+1] += fa;
+            totalForces[high+1] += fb;
+            totalForces[mid+1] -= (fa + fb);
 
-            fMag = Kbend*bend.length;
-
-            f=fMag*bend.dx;
-            totalForces[low] += f;
-            totalForces[high] += f;
-            totalForces[mid] -= 2*f;
-
-            f=fMag*bend.dy;
-            totalForces[low+1] += f;
-            totalForces[high+1] += f;
-            totalForces[mid+1] -= 2*f;
-
-            f=fMag*bend.dz;
-            totalForces[low+2] += f;
-            totalForces[high+2] += f;
-            totalForces[mid+2] -= 2*f;
+            fa = Kbend*t0t1/r0p*t0.dz - Kbend/r0p*t1.dz;
+            fb = Kbend/r1p*t0.dz - Kbend*t0t1*t1.dz;
+            totalForces[low+2] += fa;
+            totalForces[high+2] += fb;
+            totalForces[mid+2] -= (fa + fb);
 
             t0 = t1;
+            r0p = r1p;
         }
         double sum = 0;
         double v;
@@ -288,17 +200,72 @@ public class RigidRod implements DrawableRod{
         return Math.sqrt(sum);
     }
 
-    public double calculateEnergy(){
+    final static double[] wide = createGaussianKernel(2);
+    final static double[] narrow = createGaussianKernel(1);
+    void smearForces(double[] applied, double[] total){
+        double[] kernel = wide;
+        int l = total.length/3;
+        for(int i = 0; i<l; i++){
+            total[3*i] = 0;
+            total[3*i+1] = 0;
+            total[3*i+2] = 0;
+            for(int j = 0; j<kernel.length; j++){
+                int dex = j+i - kernel.length/2;
+                dex = dex >= l?2*l - dex -1:dex;
+                dex = dex<0?-dex:dex;
+                total[3*i] += applied[3*dex]*kernel[j];
+                total[3*i+1] += applied[3*dex+1]*kernel[j];
+                total[3*i+2] += applied[3*dex+2]*kernel[j];
+            }
+        }
+    }
+
+    static double[] createGaussianKernel(double sigma){
+        int l = (int)(3*sigma)*2 + 1;
+        double[] kernel = new double[l];
+        double A = 1.0/Math.sqrt(2*Math.PI*sigma*sigma);
+        for(int i = -l/2; i>=l/2; i++){
+
+            kernel[i+l/2] = A*Math.exp(-0.5*Math.pow(i/sigma, 2));
+
+        }
+
+        return kernel;
+
+    }
+
+    public double calculateStretchEnergy(){
         double energy = 0;
-
-        for(int i = 1; i<N-1; i++){
-
+        for(int i = 1; i<N; i++){
+            Point a = points[i-1];
+            Point b = points[i];
+            Vector t0 = new Vector(a, b);
+            energy += 0.5*sq(t0.length-ds0)*Kspring;
         }
 
 
         return energy;
 
     }
+    public double calculateBendEnergy(){
+        double energy = 0;
+        Vector t0 = new Vector(points[0], points[1]);
+        for(int i = 1; i<N-1; i++){
+            Point b = points[i];
+            Point c = points[i+1];
+            Vector t1 = new Vector(b, c);
+
+            energy += 0.5*ds0*Kbend*(1 - t0.dx*t1.dx - t0.dy*t1.dy - t0.dz*t1.dz);
+            t0 = t1;
+        }
+
+
+        return energy;
+
+    }
+
+
+    double sq(double v){return v*v;}
 
     public double getMaxCurvature(){
         double max = 0;
@@ -353,13 +320,13 @@ public class RigidRod implements DrawableRod{
 
     public static void main(String[] args){
         RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 51, 2);
-        double f = 0.0025;
-        double c = 0.0;
+        double f = 0.005;
+        double c = -0.0;
         r0.applyForce(c, f, 0, -1.0);
         r0.applyForce(-c, f, 0, 1.0);
         r0.applyForce(0, -2*f, 0, 0);
 
-        AnalyticBentRod br = new AnalyticBentRod(2, 2*f/r0.kappa);
+        AnalyticBentRod br = new AnalyticBentRod(2, 1*f/r0.kappa);
 
 
         RodViewer viewer = new RodViewer();
