@@ -8,8 +8,8 @@ import org.orangepalantir.rods.RigidRod;
  * Created by msmith on 05/09/16.
  */
 public class RigidRodAttachment implements Attachment {
-    double loc;
-    RigidRod rod;
+    public double loc;
+    public RigidRod rod;
     double[] pt = new double[3];
     public RigidRodAttachment(double loc, RigidRod rod){
         this.loc = loc;

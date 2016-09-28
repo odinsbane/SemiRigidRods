@@ -34,7 +34,7 @@ public class TwoSpringsAndAMotor {
         boolean aAttached = Math.abs(a.loc)<=a.rod.length*0.5;
         boolean bAttached = Math.abs(b.loc)<=b.rod.length*0.5;
         if((!aAttached)||(!bAttached)){
-            s.k = 0;
+            s.setStiffness(0);
             if((!aAttached)&&(!bAttached)){
                 return;
             }
@@ -134,7 +134,7 @@ public class TwoSpringsAndAMotor {
                     new RigidRodAttachment(-length*0.5 + i*ds, r0),
                     new RigidRodAttachment(length*0.5 - i*ds, r1)
             );
-            s.s0 = springL;
+            s.setRestLength(springL);
             /*
             Spring s2 = new Spring(
                     new RigidRodAttachment(1 - i*ds, r1),

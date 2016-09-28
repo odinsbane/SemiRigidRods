@@ -6,7 +6,7 @@ package org.orangepalantir.rods;
 public class Vector{
     public static final Vector ZERO = new Vector(0,0,0);
 
-    double  dx, dy, dz;
+    public double  dx, dy, dz;
     public double length;
 
     public Vector(Point a, Point b){

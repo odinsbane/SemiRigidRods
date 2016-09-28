@@ -12,7 +12,7 @@ import java.util.List;
 public class AdaptiveIntegrator {
     List<double[]> datas = new ArrayList<>();
     List<double[]> forces = new ArrayList<>();
-    double DT = 1e-3;
+    public double DT = 1e-3;
     double TOL = 1e-11;
 
     int positionValues;

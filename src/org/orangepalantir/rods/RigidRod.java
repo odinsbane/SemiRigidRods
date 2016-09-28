@@ -13,15 +13,27 @@ public class RigidRod implements DrawableRod {
     double[] appliedForces;
     public double[] totalForces;
     public Point[] points;
-    double k = 100;
-    double kappa = 0.166;
+    public double k = 100;
+    public double kappa = 0.0166;
+    final public int N;
+    public double length;
 
     double Kspring;
     double Kbend;
     double Ktor = 0;
-    final public int N;
-    double length;
     double ds0;
+
+    public RigidRod(Point[] points, double springStiffness, double bendingStiffness, double length){
+        this.points = points;
+        N = points.length;
+        ds0 = length/(N-1);
+        k = springStiffness;
+        kappa = bendingStiffness;
+        Kspring = k/ds0;
+        Kbend = kappa/(ds0*ds0);
+
+
+    }
 
     public RigidRod(Point center, Vector direction, int N, double length){
         this.N = N;

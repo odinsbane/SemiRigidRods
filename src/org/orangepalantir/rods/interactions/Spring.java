@@ -11,7 +11,7 @@ import java.awt.Color;
 public class Spring {
     protected double s0 = 0.2;
     protected double k = 100;
-    protected final Attachment a, b;
+    public final Attachment a, b;
     private Color color;
 
     public Spring(Attachment a, Attachment b){
@@ -20,14 +20,16 @@ public class Spring {
         setColor(new Color(255, 255, 255, 155));
     }
 
-    protected Vector getForce(){
+
+
+    public Vector getForce(){
         Vector v = new Vector(a.getAttachment(), b.getAttachment());
         double factor = v.length - s0;
         v.length = factor*k;
         return v;
     }
 
-    void applyForces(){
+    public void applyForces(){
         Vector force = getForce();
         a.applyForce(force);
         force.length = -force.length;
@@ -45,11 +47,23 @@ public class Spring {
         s0 = length;
     }
 
+    public void setStiffness(double stiffness){
+        k = stiffness;
+    }
+
     public Color getColor() {
         return color;
     }
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public double getRestLength() {
+        return s0;
+    }
+
+    public double getStiffness() {
+        return k;
     }
 }

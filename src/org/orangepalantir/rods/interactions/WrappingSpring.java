@@ -20,7 +20,7 @@ public class WrappingSpring extends Spring {
     }
 
     @Override
-    protected Vector getForce(){
+    public Vector getForce(){
         Point ptA = a.getAttachment();
         Point ptB = b.getAttachment();
         Vector v = getWrapped(ptA, ptB);
