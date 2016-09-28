@@ -1,12 +1,9 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.interactions;
 
-import javax.imageio.ImageIO;
+import org.orangepalantir.rods.Vector;
+import org.orangepalantir.rods.Point;
+
 import java.awt.Color;
-import java.awt.EventQueue;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * Created by msmith on 17/08/16.

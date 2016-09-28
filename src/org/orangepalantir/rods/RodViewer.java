@@ -1,4 +1,6 @@
-package org.orangepalantir;
+package org.orangepalantir.rods;
+
+import org.orangepalantir.rods.interactions.Spring;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,7 +16,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

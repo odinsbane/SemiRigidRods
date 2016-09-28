@@ -1,4 +1,9 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.interactions;
+
+import org.orangepalantir.rods.Point;
+import org.orangepalantir.rods.Vector;
+import org.orangepalantir.rods.interactions.Attachment;
+import org.orangepalantir.rods.interactions.Spring;
 
 /**
  * A spring whose vector is the shortest distance wrapped around a box of the provided

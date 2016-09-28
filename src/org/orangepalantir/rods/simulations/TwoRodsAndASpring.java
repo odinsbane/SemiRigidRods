@@ -1,15 +1,18 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.simulations;
 
 import lightgraph.Graph;
+import org.orangepalantir.rods.Vector;
+import org.orangepalantir.rods.Point;
+import org.orangepalantir.rods.RigidRod;
+import org.orangepalantir.rods.RodViewer;
+import org.orangepalantir.rods.integrators.AdaptiveIntegrator;
+import org.orangepalantir.rods.interactions.RigidRodAttachment;
+import org.orangepalantir.rods.interactions.Spring;
+import org.orangepalantir.rods.interactions.StaticAttachment;
 
-import javax.imageio.ImageIO;
 import java.awt.EventQueue;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * Created by msmith on 26/09/16.

@@ -1,4 +1,12 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.simulations;
+
+import org.orangepalantir.rods.Vector;
+import org.orangepalantir.rods.Point;
+import org.orangepalantir.rods.RigidRod;
+import org.orangepalantir.rods.RodViewer;
+import org.orangepalantir.rods.integrators.AdaptiveIntegrator;
+import org.orangepalantir.rods.interactions.RigidRodAttachment;
+import org.orangepalantir.rods.interactions.Spring;
 
 import javax.imageio.ImageIO;
 import java.awt.EventQueue;

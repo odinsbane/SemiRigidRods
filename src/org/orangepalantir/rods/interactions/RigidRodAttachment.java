@@ -1,9 +1,13 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.interactions;
+
+import org.orangepalantir.rods.Vector;
+import org.orangepalantir.rods.Point;
+import org.orangepalantir.rods.RigidRod;
 
 /**
  * Created by msmith on 05/09/16.
  */
-public class RigidRodAttachment implements Attachment{
+public class RigidRodAttachment implements Attachment {
     double loc;
     RigidRod rod;
     double[] pt = new double[3];

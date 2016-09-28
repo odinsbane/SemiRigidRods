@@ -1,4 +1,7 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.integrators;
+
+import org.orangepalantir.rods.RigidRod;
+import org.orangepalantir.rods.interactions.Spring;
 
 import java.util.ArrayList;
 import java.util.List;

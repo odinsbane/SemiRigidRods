@@ -1,4 +1,4 @@
-package org.orangepalantir;
+package org.orangepalantir.rods;
 
 /**
  * Created by melkor on 8/2/16.

@@ -1,10 +1,14 @@
-package org.orangepalantir;
+package org.orangepalantir.rods.interactions;
+
+import org.orangepalantir.rods.Point;
+import org.orangepalantir.rods.RigidRod;
+import org.orangepalantir.rods.Vector;
 
 /**
  * Created by msmith on 08/09/16.
  */
 
-public class FixedForceAttachment implements Attachment{
+public class FixedForceAttachment implements Attachment {
     RigidRod rod;
     double attachmentPoint;
     double[] loc = new double[3];

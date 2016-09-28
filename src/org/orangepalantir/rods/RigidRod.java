@@ -1,4 +1,4 @@
-package org.orangepalantir;
+package org.orangepalantir.rods;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Created by melkor on 7/31/16.
  */
-public class RigidRod implements DrawableRod{
+public class RigidRod implements DrawableRod {
     double[] appliedForces;
     public double[] totalForces;
     public Point[] points;
