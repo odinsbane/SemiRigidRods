@@ -1,5 +1,6 @@
 package org.orangepalantir.rods.io;
 
+import org.orangepalantir.rods.Motor;
 import org.orangepalantir.rods.Point;
 import org.orangepalantir.rods.RigidRod;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
@@ -7,21 +8,20 @@ import org.orangepalantir.rods.interactions.Spring;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 
 /**
  * For loading and saving rods.
  *
- * Created by msmith on 28/09/16.
+ * Created by Matt on 28/09/16.
  */
 public class RodIO {
     final static int RIGID_ROD = 0;
     final static int CROSSLINKER = 1;
     List<RigidRod> rods;
     List<Spring> springs;
-
+    List<Motor> motors;
     DataOutputStream output;
     DataInputStream input;
     private RodIO(){
@@ -48,6 +48,7 @@ public class RodIO {
 
     public Spring crossLinker() throws IOException {
         double k = input.readDouble();
+        double kappa = input.readDouble();
         double l = input.readDouble();
         int a = input.readInt();
         double as = input.readDouble();

@@ -1,5 +1,6 @@
 package org.orangepalantir.rods.simulations;
 
+import org.orangepalantir.rods.Motor;
 import org.orangepalantir.rods.Vector;
 import org.orangepalantir.rods.Point;
 import org.orangepalantir.rods.RigidRod;
@@ -25,39 +26,6 @@ public class TwoSpringsAndAMotor {
     static double time = 0;
     static String tag;
     static boolean saving = false;
-    static void stepAttachments(Spring s, RigidRodAttachment a, RigidRodAttachment b){
-        time += dt;
-
-        double projectedForce = 0;
-
-        Vector v;
-        boolean aAttached = Math.abs(a.loc)<=a.rod.length*0.5;
-        boolean bAttached = Math.abs(b.loc)<=b.rod.length*0.5;
-        if((!aAttached)||(!bAttached)){
-            s.setStiffness(0);
-            if((!aAttached)&&(!bAttached)){
-                return;
-            }
-            v = Vector.ZERO;
-        } else {
-            v = s.getForce();
-        }
-
-        if(aAttached){
-            Vector t0 = a.rod.getTangent(a.loc);
-            Vector p = t0.projection(v);
-
-            a.loc += (1 + p.length)*dt;
-        }
-
-        if(bAttached) {
-            v.length = -v.length;
-            Vector t1 = b.rod.getTangent(b.loc);
-            Vector p = t1.projection(v);
-            b.loc += (1 + p.length) * dt;
-        }
-
-    }
     final static String usage = "usage: simulation <relax value> <stiffness factor> links directory";
     public static void main(String[] args){
         boolean gui=false;
@@ -77,7 +45,7 @@ public class TwoSpringsAndAMotor {
             stiffnessFactor = Double.parseDouble(args[1]);
             N = Integer.parseInt(args[2]);
             if(args.length>=4) {
-                gui=false;
+                gui=true;
                 saving=true;
                 out = new File(args[3]);
                 if (out.exists()) {
@@ -104,18 +72,19 @@ public class TwoSpringsAndAMotor {
         }
         double length = 2.0;
 
-        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 121, length);
-        RigidRod r1 = new RigidRod(new Point(0, 0.2, 0), new Vector(-1, 0, 0), 121, length);
+        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 5, length);
+        RigidRod r1 = new RigidRod(new Point(0, 0.2, 0), new Vector(-1, 0, 0), 5, length);
         r0.setBendingStiffness(stiffnessFactor*r0.kappa);
         r1.setBendingStiffness(stiffnessFactor*r1.kappa);
-        RigidRodAttachment walkingA = new RigidRodAttachment(-0.0, r0);
-        RigidRodAttachment walkingB = new RigidRodAttachment(-0.0, r1);
 
-        Spring spring0 = new Spring(
-                walkingA,
-                walkingB
-        );
+        Motor motor = new Motor(0.8, 1000, 0.2, 100);
+        motor.bindRod(r0, 0, 0, 100);
+        motor.bindRod(r1, 0, 1, 100);
+
         List<Spring> springs = new ArrayList<>();
+
+        springs.add(motor.springs[0]);
+        springs.add(motor.springs[1]);
 
         RodViewer viewer = new RodViewer();
 
@@ -123,8 +92,6 @@ public class TwoSpringsAndAMotor {
 
         rods.add(r0);
         rods.add(r1);
-
-        springs.add(spring0);
 
         double ds = r0.length/(N-1);
 
@@ -135,25 +102,20 @@ public class TwoSpringsAndAMotor {
                     new RigidRodAttachment(length*0.5 - i*ds, r1)
             );
             s.setRestLength(springL);
-            /*
-            Spring s2 = new Spring(
-                    new RigidRodAttachment(1 - i*ds, r1),
-                    new StaticAttachement(new Point(-1 + i*ds, 0.2 + springL, 0))
-            );
-            s2.s0 = springL;
-            */
             springs.add(s);
-            //springs.add(s2);
+
         }
 
 
         for(RigidRod rod: rods){
             viewer.addRod(rod);
         }
+        viewer.addRod(motor);
 
         for(Spring spring: springs){
             viewer.addSpring(spring);
         }
+
         viewer.setSelected(r0);
 
         if(gui) {
@@ -165,6 +127,7 @@ public class TwoSpringsAndAMotor {
         integrator.prepare(rods);
         double s=-1;
         int counter = 0;
+        time = 0;
         outer:
         while(viewer.displays()){
             for(int j = 0; j<1000; j++){
@@ -172,6 +135,7 @@ public class TwoSpringsAndAMotor {
                 s = integrator.step(rods, springs);
                 counter++;
                 if((s>0 && s<limit)||counter>1e6){
+                    time += dt;
                     if(time - lastWrite >= 0.01 ){
                         try {
                             String status = String.format("relaxed: %2.2f:  %2.4e     %2.4e , %07d", time, integrator.DT, s, counter);
@@ -187,7 +151,6 @@ public class TwoSpringsAndAMotor {
                         lastWrite = time;
                     }
                     //relaxed.
-                    stepAttachments(spring0, walkingA, walkingB);
                     if(time>=2) {
                         System.exit(0);
                     }

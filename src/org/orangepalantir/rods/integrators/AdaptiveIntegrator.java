@@ -1,5 +1,6 @@
 package org.orangepalantir.rods.integrators;
 
+import org.orangepalantir.rods.Motor;
 import org.orangepalantir.rods.RigidRod;
 import org.orangepalantir.rods.interactions.Spring;
 

@@ -21,7 +21,11 @@ public class Spring {
     }
 
 
-
+    /**
+     * The force acting on a. Eg. if longer than the rest length, the force is + towards b.
+     *
+     * @return
+     */
     public Vector getForce(){
         Vector v = new Vector(a.getAttachment(), b.getAttachment());
         double factor = v.length - s0;

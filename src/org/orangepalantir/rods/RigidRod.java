@@ -31,8 +31,6 @@ public class RigidRod implements DrawableRod {
         kappa = bendingStiffness;
         Kspring = k/ds0;
         Kbend = kappa/(ds0*ds0);
-
-
     }
 
     public RigidRod(Point center, Vector direction, int N, double length){
@@ -330,36 +328,6 @@ public class RigidRod implements DrawableRod {
         return max;
     }
 
-    public static void main(String[] args){
-        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 51, 2);
-        double f = 0.005;
-        double c = -0.0;
-        r0.applyForce(c, f, 0, -1.0);
-        r0.applyForce(-c, f, 0, 1.0);
-        r0.applyForce(0, -2*f, 0, 0);
-
-        AnalyticBentRod br = new AnalyticBentRod(2, 1*f/r0.kappa);
-
-
-        RodViewer viewer = new RodViewer();
-        viewer.addRod(r0);
-        viewer.addRod(br);
-        viewer.setSelected(r0);
-        double[] original = new double[r0.getValueCount()];
-        double[] full = new double[r0.getValueCount()];
-        double[] next = new double[r0.getValueCount()];
-        EventQueue.invokeLater(viewer::buildGui);
-        while(viewer.displays()){
-            double s = 0;
-            for(int j = 0; j<1000; j++){
-                s=r0.prepareInternalForces();
-                r0.step(0.001);
-            }
-            viewer.setStatus("" + s);
-            viewer.repaint();
-        }
-
-    }
 
 
     @Override
@@ -456,43 +424,37 @@ public class RigidRod implements DrawableRod {
         Vector v = new Vector(points[low], points[high]);
         return v;
     }
+
+    public static void main(String[] args){
+        RigidRod r0 = new RigidRod(new Point(0, 0, 0), new Vector(1, 0, 0), 51, 2);
+        double f = 0.005;
+        double c = -0.0;
+        r0.applyForce(c, f, 0, -1.0);
+        r0.applyForce(-c, f, 0, 1.0);
+        r0.applyForce(0, -2*f, 0, 0);
+
+        AnalyticBentRod br = new AnalyticBentRod(2, 1*f/r0.kappa);
+
+
+        RodViewer viewer = new RodViewer();
+        viewer.addRod(r0);
+        viewer.addRod(br);
+        viewer.setSelected(r0);
+        double[] original = new double[r0.getValueCount()];
+        double[] full = new double[r0.getValueCount()];
+        double[] next = new double[r0.getValueCount()];
+        EventQueue.invokeLater(viewer::buildGui);
+        while(viewer.displays()){
+            double s = 0;
+            for(int j = 0; j<1000; j++){
+                s=r0.prepareInternalForces();
+                r0.step(0.001);
+            }
+            viewer.setStatus("" + s);
+            viewer.repaint();
+        }
+
+    }
+
 }
 
-class AnalyticBentRod implements DrawableRod{
-    List<Point> points = new ArrayList<>();
-
-    double A,B;
-    int N = 100;
-    public AnalyticBentRod(double length, double force){
-        A = force/6.0;
-        B = force*length/4;
-        double ds = length/(N-1);
-        for(int i = 0; i<N; i++){
-            double s = ds*i - length/2;
-            points.add(new Point(s, getHeight(s), 0));
-        }
-    }
-
-    double getHeight(double s){
-        if(s>0){
-            return -A*s*s*s + B*s*s;
-        } else{
-            return A*s*s*s + B*s*s;
-        }
-    }
-
-
-
-
-
-
-    @Override
-    public List<Point> getPoints() {
-        return points;
-    }
-
-    @Override
-    public void getPoint(double location, double[] pt) {
-        //whatever.
-    }
-}
