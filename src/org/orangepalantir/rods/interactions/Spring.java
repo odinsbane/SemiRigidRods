@@ -34,6 +34,7 @@ public class Spring {
     }
 
     public void applyForces(){
+
         Vector force = getForce();
         a.applyForce(force);
         force.length = -force.length;

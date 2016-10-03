@@ -1,5 +1,6 @@
 package org.orangepalantir.rods;
 
+import org.orangepalantir.rods.integrators.UpdatableAgent;
 import org.orangepalantir.rods.interactions.Attachment;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
@@ -12,7 +13,7 @@ import java.util.List;
  *
  * Created by Matt on 29/09/16.
  */
-public class Motor implements DrawableRod{
+public class Motor implements DrawableRod, UpdatableAgent{
     final static int FRONT = 0;
     final static int BACK = 1;
 
@@ -84,23 +85,28 @@ public class Motor implements DrawableRod{
         if(springs[0]!=null){
             walk(springs[0], attachments[0], dt);
         }
+
         if(springs[1]!=null){
             walk(springs[1], attachments[1], dt);
         }
 
     }
+
     public void walk(Spring s, RigidRodAttachment a, double dt){
         Vector force = s.getForce();
         Vector tangent = a.rod.getTangent(a.loc);
         double f = force.length*(tangent.dx*force.dx + tangent.dy*force.dy + tangent.dz*force.dz);
         a.loc += (f0 - f)*dt;
+        if(a.loc>a.rod.length/2 || a.loc<-a.rod.length/2){
+            s.setStiffness(0);
+        }
     }
 
     public double prepareInternalForces(){
         System.arraycopy(appliedForces, 0, totalForces, 0, 6);
 
         Vector stalk = new Vector(points[BACK], points[FRONT]);
-        double mag = stalkStiffness*(stalkLength - stalk.length);
+        double mag = -stalkStiffness*(stalkLength - stalk.length);
         stalk.length = mag;
         totalForces[0] += -stalk.dx*mag;
         totalForces[1] += -stalk.dy*mag;
@@ -123,6 +129,28 @@ public class Motor implements DrawableRod{
             p.x = data[current];
             p.y = data[current+1];
             p.z = data[current+2];
+        }
+    }
+
+    @Override
+    public void clearForces() {
+        Arrays.fill(appliedForces, 0.0);
+    }
+
+    @Override
+    public void step(double dt) {
+        double attempts = 1;
+        for(int j = 0; j<attempts; j++){
+
+
+            points[0].x += totalForces[0] * dt/attempts;
+            points[0].y += totalForces[1] * dt/attempts;
+            points[0].z += totalForces[2] * dt/attempts;
+            points[1].x += totalForces[3] * dt/attempts;
+            points[1].y += totalForces[4] * dt/attempts;
+            points[1].z += totalForces[5] * dt/attempts;
+
+            if(j<attempts-1) prepareInternalForces();
         }
     }
 

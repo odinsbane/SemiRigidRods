@@ -13,19 +13,21 @@ import java.util.List;
 public class AdaptiveIntegrator {
     List<double[]> datas = new ArrayList<>();
     List<double[]> forces = new ArrayList<>();
+    List<UpdatableAgent> agents;
     public double DT = 1e-3;
     double TOL = 1e-11;
 
     int positionValues;
     int forcesValues;
     double preparedForces = 0;
-    public void prepare(List<RigidRod> rods){
+    public void prepare(List<UpdatableAgent> agents){
+        this.agents = new ArrayList<>(agents);
         int pTally = 0;
         int fTally = 0;
 
-        for(RigidRod rod: rods){
-            pTally += rod.getValueCount();
-            fTally += rod.getForceCount();
+        for(UpdatableAgent agent: agents){
+            pTally += agent.getValueCount();
+            fTally += agent.getForceCount();
         }
 
         positionValues = pTally;
@@ -38,47 +40,47 @@ public class AdaptiveIntegrator {
         forces.add(new double[forcesValues]);
     }
 
-    public void storePositions(int slot, List<RigidRod> rods){
+    public void storePositions(int slot){
         double[] data = datas.get(slot);
         int offset = 0;
-        for(RigidRod rod: rods){
-            rod.storePositions(data, offset);
-            offset += rod.getValueCount();
+        for(UpdatableAgent agent: agents){
+            agent.storePositions(data, offset);
+            offset += agent.getValueCount();
         }
     }
 
-    public void storeForces(int slot, List<RigidRod> rods){
+    public void storeForces(int slot){
         double[] data = forces.get(slot);
         int offset = 0;
-        for(RigidRod rod: rods){
-            rod.storeForces(data, offset);
-            offset += rod.getForceCount();
+        for(UpdatableAgent agent: agents){
+            agent.storeForces(data, offset);
+            offset += agent.getForceCount();
         }
     }
 
-    public void restorePositions(int slot, List<RigidRod> rods){
+    public void restorePositions(int slot){
         double[] data = datas.get(slot);
         int offset = 0;
-        for(RigidRod rod: rods){
-            rod.restorePositions(data, offset);
-            offset += rod.getValueCount();
+        for(UpdatableAgent agent: agents){
+            agent.restorePositions(data, offset);
+            offset += agent.getValueCount();
         }
     }
 
-    public void restoreForces(int slot, List<RigidRod> rods){
+    public void restoreForces(int slot){
         double[] data = forces.get(slot);
         int offset = 0;
-        for(RigidRod rod: rods){
-            rod.restoreForces(data, offset);
-            offset += rod.getForceCount();
+        for(UpdatableAgent agent: agents){
+            agent.restoreForces(data, offset);
+            offset += agent.getForceCount();
         }
 
     }
 
-    public double prepareInternalForces(List<RigidRod> rods){
+    public double prepareInternalForces(){
         double sum = 0;
-        for(RigidRod rod: rods){
-            sum += rod.prepareInternalForces();
+        for(UpdatableAgent agent: agents){
+            sum += agent.prepareInternalForces();
         }
         return sum;
     }
@@ -100,64 +102,67 @@ public class AdaptiveIntegrator {
         }
         return Math.sqrt(sum);
     }
-    public void clearForces(List<RigidRod> rods){
-        rods.forEach(RigidRod::clearForces);
+    public void clearForces(){
+        agents.forEach(a->a.clearForces());
     }
 
-    public void stepRods(double dt, List<RigidRod> rods){
-        rods.forEach(r->r.step(dt));
+    public void stepRods(double dt){
+        agents.forEach(r->r.step(dt));
     }
 
-    public double step(List<RigidRod> rods, List<Spring> springs){
+    public double step(List<Spring> springs){
         double error;
         do {
-            clearForces(rods);
+            clearForces();
             //store the original positions.
-            storePositions(0, rods);
+            storePositions(0);
             //apply external forces.
             applyForces(springs);
             //prepare the internal forces.
-            preparedForces = prepareInternalForces(rods);
+            preparedForces = prepareInternalForces();
             //store forces
-            storeForces(0, rods);
+            storeForces(0);
             //take full step
-            stepRods(DT, rods);
-            storePositions(1, rods);
+            stepRods(DT);
+            storePositions(1);
             //restore 1st positions & 1st forces
-            restorePositions(0, rods);
-            restoreForces(0, rods);
+            restorePositions(0);
+            restoreForces(0);
             //take half-step
-            stepRods(DT / 2, rods);
+            stepRods(DT / 2);
             //store positions
-            storePositions(2, rods);
+            storePositions(2);
 
             //re-apply external forces.
-            clearForces(rods);
+            clearForces();
             applyForces(springs);
 
             //prepare internal forces & store new force state.
-            prepareInternalForces(rods);
-            storeForces(1, rods);
+            prepareInternalForces();
+            storeForces(1);
 
             //take second half step.
-            stepRods(DT / 2, rods);
-            storePositions(3, rods);
+            stepRods(DT / 2);
+            storePositions(3);
             //compare error:
             error = calculatePositionError(1, 3);
             // - accepted? adjust dt and forget everything.
             if (error < 1.5*TOL) {
                 double f = Math.sqrt(TOL/error);
-                if(f>2){
-                    f=2;
+                if(f>1.2){
+                    f=1.2;
                 }
                 DT = f*DT;
+                if(DT>1e-3){
+                    DT = 1e-3;
+                }
                 return preparedForces;
             } else{
-                restoreForces(0, rods);
+                restoreForces(0);
                 DT=DT/2;
             }
         } while(error>=1.5*TOL);
-        // - rejected? ajust dt to 1/2
+        // - rejected? adjust dt to 1/2
         return preparedForces;
     }
 
@@ -166,3 +171,4 @@ public class AdaptiveIntegrator {
     }
 
 }
+

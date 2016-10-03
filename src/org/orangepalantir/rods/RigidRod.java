@@ -1,5 +1,7 @@
 package org.orangepalantir.rods;
 
+import org.orangepalantir.rods.integrators.UpdatableAgent;
+
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Created by melkor on 7/31/16.
  */
-public class RigidRod implements DrawableRod {
+public class RigidRod implements DrawableRod, UpdatableAgent {
     double[] appliedForces;
     public double[] totalForces;
     public Point[] points;
@@ -63,21 +65,34 @@ public class RigidRod implements DrawableRod {
     }
 
     public void applyForce(double fx, double fy, double fz, double location){
-        int dex = (int)((location + length*0.5)/ds0);
-        if(dex>=N){
+        double full = (location + length*0.5)/ds0;
+        int dex = (int)(full);
+        full = full - dex;
+
+        if(dex>=N-1){
             dex=N-1;
+            full = 0;
         } else if(dex<0){
             dex = 0;
+            full = 0;
         }
+        double fb = full;
+        double fa =  1 -full;
 
-        appliedForces[3*dex] += fx;
-        appliedForces[3*dex + 1] += fy;
-        appliedForces[3*dex + 2] += fz;
+        dex = 3*dex;
+        appliedForces[dex] += fx*fa;
+        appliedForces[dex + 1] += fy*fa;
+        appliedForces[dex + 2] += fz*fa;
 
+        if(full>0){
+            appliedForces[dex + 3] += fx*fb;
+            appliedForces[dex + 4] += fy*fb;
+            appliedForces[dex + 5] += fz*fb;
+        }
     }
 
     public void step(double dt){
-        double attempts = 6;
+        double attempts = 1;
         for(int j = 0; j<attempts; j++){
             for(int i = 0; i<N; i++) {
                 Point a = points[i];
@@ -121,7 +136,6 @@ public class RigidRod implements DrawableRod {
             dir[2] *= l;
         }
     }
-
     public double prepareInternalForces(){
         System.arraycopy(appliedForces, 0, totalForces, 0, 3*N);
         //smearForces(appliedForces, totalForces);

@@ -6,6 +6,7 @@ import org.orangepalantir.rods.Point;
 import org.orangepalantir.rods.RigidRod;
 import org.orangepalantir.rods.RodViewer;
 import org.orangepalantir.rods.integrators.AdaptiveIntegrator;
+import org.orangepalantir.rods.integrators.UpdatableAgent;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
 import org.orangepalantir.rods.interactions.StaticAttachment;
@@ -91,7 +92,8 @@ public class TwoRodsAndASpring {
             EventQueue.invokeLater(viewer::buildGui);
         }
         AdaptiveIntegrator integrator = new AdaptiveIntegrator();
-        integrator.prepare(rods);
+
+        integrator.prepare(new ArrayList<>(rods));
         double s=-1;
         int counter = 0;
         Graph g = new Graph();
@@ -110,7 +112,7 @@ public class TwoRodsAndASpring {
         while(viewer.displays()){
             for(int j = 0; j<1000; j++){
 
-                s = integrator.step(rods, springs);
+                s = integrator.step(springs);
                 counter++;
 
 
