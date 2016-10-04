@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ public class RodIO implements AutoCloseable{
     final static int FIXED_FORCE=3;
     List<RigidRod> rods;
     List<Spring> springs;
-    List<Motor> motors;
+    List<Motor> motors = new ArrayList<>();
     DataOutputStream output;
     DataInputStream input;
     double width = 10;
@@ -193,6 +194,7 @@ public class RodIO implements AutoCloseable{
         for(Spring spring: springs){
             write(spring);
         }
+        output.write(-1);
     }
 
     @Override
@@ -206,9 +208,17 @@ public class RodIO implements AutoCloseable{
                 break;
         }
     }
-    static RodIO saveRigidRodSimulation() throws IOException {
+    public static RodIO saveRigidRodSimulation() throws IOException {
 
         return new RodIO(SAVE);
 
+    }
+
+    public void setRods(List<RigidRod> rods) {
+        this.rods = rods;
+    }
+
+    public void setSprings(List<Spring> springs){
+        this.springs = springs;
     }
 }
