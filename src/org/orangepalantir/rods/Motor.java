@@ -14,8 +14,8 @@ import java.util.List;
  * Created by Matt on 29/09/16.
  */
 public class Motor implements DrawableRod, UpdatableAgent{
-    final static int FRONT = 0;
-    final static int BACK = 1;
+    public final static int FRONT = 0;
+    public final static int BACK = 1;
 
 
     double stalkLength = 0.8;
@@ -23,9 +23,8 @@ public class Motor implements DrawableRod, UpdatableAgent{
     double springStiffness = 100;
     double stalkStiffness = 1000;
     double f0 = 1;
-    double motorTau = 75;
-
-    double[] bindLocations = new double[2];
+    double bindTau = 75;
+    double width;
     RigidRodAttachment[] attachments = new RigidRodAttachment[2];
     public Spring[] springs = new Spring[2];
     double[] bindTimes = new double[2];
@@ -34,9 +33,13 @@ public class Motor implements DrawableRod, UpdatableAgent{
 
     double[] appliedForces = new double[6];
     double[] totalForces = new double[6];
-    public Motor(double stalkLength, double stalkStiffness, double springLength, double springStiffness){
+    public Motor(double stalkLength, double stalkStiffness, double springLength, double springStiffness, double bindTau, double width){
         this.stalkLength = stalkLength;
-        this.stalkStiffness = 1000;
+        this.stalkStiffness = stalkStiffness;
+        this.springLength = springLength;
+        this.springStiffness = springStiffness;
+        this.bindTau = bindTau;
+        this.width = width;
         points[0] = new Point(0, 0, 0);
         points[1] = new Point(0, 0.8, 0);
     }
@@ -44,7 +47,8 @@ public class Motor implements DrawableRod, UpdatableAgent{
         RigidRodAttachment attachment = new RigidRodAttachment(location, rod);
         Spring s = new Spring(
                 attachment,
-                createAttachment(head)
+                createAttachment(head),
+                width
         );
         s.setRestLength(springLength);
         s.setStiffness(springStiffness);
@@ -52,16 +56,6 @@ public class Motor implements DrawableRod, UpdatableAgent{
         timeBound[head] = 0;
         attachments[head] = attachment;
         springs[head] = s;
-    }
-
-    public void applyForces(){
-
-        if(springs[0]==null || springs[1]==null){
-            return;
-        }
-        springs[0].applyForces();
-        springs[1].applyForces();
-
     }
 
 
@@ -96,7 +90,7 @@ public class Motor implements DrawableRod, UpdatableAgent{
         Vector force = s.getForce();
         Vector tangent = a.rod.getTangent(a.loc);
         double f = force.length*(tangent.dx*force.dx + tangent.dy*force.dy + tangent.dz*force.dz);
-        a.loc += (f0 - f)*dt;
+        a.loc += (f0 + f)*dt;
         if(a.loc>a.rod.length/2 || a.loc<-a.rod.length/2){
             s.setStiffness(0);
         }
@@ -168,14 +162,17 @@ public class Motor implements DrawableRod, UpdatableAgent{
         System.arraycopy(totalForces, 0, data, offset, totalForces.length);
     }
 
+    @Override
     public void restoreForces(double[] data, int offset){
         System.arraycopy(data, offset, totalForces, 0, totalForces.length);
     }
 
+    @Override
     public int getValueCount(){
         return 6;
     }
 
+    @Override
     public int getForceCount(){
         return 6;
     }
@@ -183,6 +180,10 @@ public class Motor implements DrawableRod, UpdatableAgent{
     @Override
     public List<Point> getPoints() {
         return Arrays.asList(points);
+    }
+
+    public double getBindTau() {
+        return bindTau;
     }
 }
 

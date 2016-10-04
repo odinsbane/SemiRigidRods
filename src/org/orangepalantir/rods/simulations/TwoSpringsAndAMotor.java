@@ -75,12 +75,12 @@ public class TwoSpringsAndAMotor {
             System.exit(-1);
         }
         double length = 2.0;
-        RigidRod r0 = new RigidRod(new Point(0, -0.2, 0), new Vector(1, 0, 0), rodPoints, length);
-        RigidRod r1 = new RigidRod(new Point(0, 1.0, 0), new Vector(-1, 0, 0), rodPoints, length);
+        RigidRod r0 = new RigidRod(new Point(0, 0.4, 0), new Vector(1, 0, 0), rodPoints, length);
+        RigidRod r1 = new RigidRod(new Point(0, 0.6, 0), new Vector(-1, 0, 0), rodPoints, length);
         r0.setBendingStiffness(stiffnessFactor*r0.kappa);
         r1.setBendingStiffness(stiffnessFactor*r1.kappa);
 
-        Motor motor = new Motor(0.8, 1000, 0.2, 100);
+        Motor motor = new Motor(0.8, 1000, 0.2, 100, 75, 10);
         motor.bindRod(r0, 0, 0, 100);
         motor.bindRod(r1, 0, 1, 100);
 
@@ -101,18 +101,18 @@ public class TwoSpringsAndAMotor {
         double springL = 0.0;
         double[] stuck = new double[3];
         for(int i = 0; i<fixedSprings; i++){
-            double loc = -length*0.5 + i*ds;
+            double loc = -length*0.5 + i*ds*0.5;
             r0.getPoint(loc, stuck);
             Spring s = new Spring(
                     new RigidRodAttachment(loc, r0),
-                    new StaticAttachment(new Point(stuck))
+                    new StaticAttachment(new Point(stuck)), 10
             );
             s.setRestLength(springL);
             springs.add(s);
             r1.getPoint(loc, stuck);
             Spring s2 = new Spring(
                     new RigidRodAttachment(loc, r1),
-                    new StaticAttachment(new Point(stuck))
+                    new StaticAttachment(new Point(stuck)), 10
             );
             s2.setRestLength(springL);
             springs.add(s2);

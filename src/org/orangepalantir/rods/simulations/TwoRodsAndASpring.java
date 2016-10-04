@@ -39,31 +39,31 @@ public class TwoRodsAndASpring {
 
         Spring s0 = new Spring(
             new RigidRodAttachment(0, r0),
-            new RigidRodAttachment(0, r1)
+            new RigidRodAttachment(0, r1), 10
         );
 
         s0.setRestLength(0);
         Spring s1 = new Spring(
             new StaticAttachment(new Point(-1, 0, 0)),
-            new RigidRodAttachment(-1, r0)
+            new RigidRodAttachment(-1, r0), 10
         );
         s1.setRestLength(0);
 
         Spring s2 = new Spring(
                 new StaticAttachment(new Point(1, 0.0, 0)),
-                new RigidRodAttachment(1, r0)
+                new RigidRodAttachment(1, r0), 10
         );
         s2.setRestLength(0);
 
         Spring s3 = new Spring(
                 new StaticAttachment(new Point(1, 0.5, 0)),
-                new RigidRodAttachment(-1, r1)
+                new RigidRodAttachment(-1, r1), 10
         );
         s3.setRestLength(0);
 
         Spring s4 = new Spring(
                 new StaticAttachment(new Point(-1, 0.5, 0)),
-                new RigidRodAttachment(1, r1)
+                new RigidRodAttachment(1, r1), 10
         );
         s4.setRestLength(0);
 
