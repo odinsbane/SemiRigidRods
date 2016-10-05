@@ -36,6 +36,7 @@ public class RodIO implements AutoCloseable{
     DataOutputStream output;
     DataInputStream input;
     double width = 10;
+    long time;
     private RodIO(int mode){
         this.mode = mode;
     }
@@ -43,8 +44,15 @@ public class RodIO implements AutoCloseable{
 
     private void loadData() throws IOException {
         int read;
+        time = input.readLong();
+        width = input.readDouble();
         do{
-            read = input.readInt();
+            try {
+                read = input.readInt();
+            } catch(Exception exc){
+                //just return what you have.
+                read = -1;
+            }
             switch(read){
                 case RIGID_ROD:
                     rods.add(readRigidRod());
@@ -67,9 +75,8 @@ public class RodIO implements AutoCloseable{
     }
 
     private Spring readCrossLinker() throws IOException {
-        double k = input.readDouble();
-        double kappa = input.readDouble();
         double l = input.readDouble();
+        double k = input.readDouble();
         int a = input.readInt();
         double as = input.readDouble();
         int b = input.readInt();
@@ -194,7 +201,7 @@ public class RodIO implements AutoCloseable{
         for(Spring spring: springs){
             write(spring);
         }
-        output.write(-1);
+        output.writeInt(-1);
     }
 
     @Override
@@ -220,5 +227,18 @@ public class RodIO implements AutoCloseable{
 
     public void setSprings(List<Spring> springs){
         this.springs = springs;
+    }
+
+    public static RodIO loadRigidRod(Path path) throws IOException {
+        RodIO io = new RodIO(LOAD);
+        io.input = new DataInputStream(Files.newInputStream(path));
+        io.setRods(new ArrayList<>());
+        io.setSprings(new ArrayList<>());
+        io.loadData();
+        return io;
+    }
+
+    public List<RigidRod> getRods() {
+        return rods;
     }
 }

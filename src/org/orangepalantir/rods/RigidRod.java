@@ -315,7 +315,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         double dx = t2.dx - t1.dx;
         double dy = t2.dy - t1.dy;
         double dz = t2.dz - t1.dz;
-        double c = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        double c = Math.sqrt(dx*dx + dy*dy + dz*dz)/ds0;
         return c;
     }
 
