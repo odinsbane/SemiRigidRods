@@ -4,3 +4,6 @@ imgs/
 maniftests/
 out/
 samples/
+.DS_Store
+junk/
+manifests/
