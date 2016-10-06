@@ -43,9 +43,11 @@ public class MeasureCurvature {
         //max=max/50;
         double[] x = new double[BINS];
         double[] y = new double[BINS];
+        double[] cum = new double[BINS];
         double dx = (max - min)/BINS;
         for(int i = 0; i<x.length; i++){
-            x[i] = Math.log(dx*(i + 0.5) + min);
+            //x[i] = Math.log(dx*(i + 0.5) + min);
+            x[i] = dx*(i + 0.5) + min;
         }
 
         double count = 0;
@@ -60,10 +62,11 @@ public class MeasureCurvature {
                 count++;
             }
         }
-
+        double sum = 0;
         for(int i = 0; i<y.length; i++){
             y[i] = y[i]/count;
-
+            sum += y[i];
+            cum[i] = sum;
         }
 
 
@@ -73,15 +76,26 @@ public class MeasureCurvature {
         graph.setTitle("Curvature Histogram: " + path);
         graph.addData(x,y);
         graph.show(true);
+
+        Graph graph2 = new Graph();
+        graph2.setXLabel("log(curvature (dt/ds))");
+        graph2.setYLabel("count/total");
+        graph2.setTitle("Cumulative Curvature Distribution: " + path);
+        graph2.addData(x,cum);
+        graph2.show(true);
+
+        RodViewer viewer = new RodViewer();
+        rods.forEach(viewer::addRod);
+        viewer.buildGui();
+        viewer.repaint();
     }
 
     public static void main(String[] args) throws IOException {
         MeasureCurvature mc = new MeasureCurvature();
-        mc.measureCurvature("lf320.dat");
-        mc.measureCurvature("lf500.dat");
-        mc.measureCurvature("lf679.dat");
-        mc.measureCurvature("lf800.dat");
-
+        mc.measureCurvature("14629755970391000001.dat");
+        mc.measureCurvature("14629775407131000001.dat");
+        mc.measureCurvature("14629867066301000001.dat");
+        mc.measureCurvature("14629885651411000001.dat");
 
 
 
