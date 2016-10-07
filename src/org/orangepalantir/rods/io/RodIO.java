@@ -106,17 +106,23 @@ public class RodIO implements AutoCloseable{
         double springLength = input.readDouble();
         double springStiffness = input.readDouble();
         double bindTau = input.readDouble();
-        int aDex = input.readInt();
-        int bDex = input.readInt();
-        double aLoc = input.readDouble();
-        double bLoc = input.readDouble();
-        double aTime = input.readDouble();
-        double bTime = input.readDouble();
 
         Motor m = new Motor(stalkLength, stalkStiffness, springLength, springStiffness, bindTau, width);
-        m.bindRod(rods.get(aDex), aLoc, Motor.FRONT, 0);
-        m.bindRod(rods.get(bDex), bLoc, Motor.BACK, -m.getBindTau()*Math.exp(1 - Math.random()));
 
+        int aDex = input.readInt();
+        if(aDex>=0) {
+            double aLoc = input.readDouble();
+            double aTime = input.readDouble();
+            m.bindRod(rods.get(aDex), aLoc, Motor.FRONT, aTime);
+        }
+
+        int bDex = input.readInt();
+
+        if(bDex>=0) {
+            double bLoc = input.readDouble();
+            double bTime = input.readDouble();
+            m.bindRod(rods.get(bDex), bLoc, Motor.BACK, bTime);
+        }
         return m;
 
     }
@@ -128,6 +134,7 @@ public class RodIO implements AutoCloseable{
         output.writeDouble(motor.springLength);
         output.writeDouble(motor.springStiffness);
         output.writeDouble(motor.getBindTau());
+
         RigidRodAttachment a = motor.getBound(Motor.FRONT);
         if(a==null){
             output.writeInt(-1);
@@ -136,13 +143,13 @@ public class RodIO implements AutoCloseable{
             output.writeDouble(a.loc);
             output.writeDouble(motor.getTimeRemaining(Motor.FRONT));
         }
-        RigidRodAttachment b = motor.getBound(Motor.FRONT);
+        RigidRodAttachment b = motor.getBound(Motor.BACK);
         if(b==null){
             output.writeInt(-1);
         } else{
-            output.writeInt(rods.indexOf(a.rod));
-            output.writeDouble(a.loc);
-            output.writeDouble(motor.getTimeRemaining(Motor.FRONT));
+            output.writeInt(rods.indexOf(b.rod));
+            output.writeDouble(b.loc);
+            output.writeDouble(motor.getTimeRemaining(Motor.BACK));
         }
     }
 
