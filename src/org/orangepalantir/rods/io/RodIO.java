@@ -3,6 +3,7 @@ package org.orangepalantir.rods.io;
 import org.orangepalantir.rods.Motor;
 import org.orangepalantir.rods.Point;
 import org.orangepalantir.rods.RigidRod;
+import org.orangepalantir.rods.Vector;
 import org.orangepalantir.rods.interactions.FixedForceAttachment;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
@@ -91,8 +92,12 @@ public class RodIO implements AutoCloseable{
 
     private Spring readFixedForce() throws IOException {
 
-
-        return new Spring(null, null, 0);
+        FixedForceAttachment ffa = new FixedForceAttachment(
+                rods.get(input.readInt()),
+                input.readDouble(),
+                new double[]{input.readDouble(), input.readDouble(), input.readDouble()}
+        );
+        return new Spring(ffa, ffa.getDanglingEnd(), width);
     }
 
     private Motor readMotor() throws IOException {
@@ -105,12 +110,43 @@ public class RodIO implements AutoCloseable{
         int bDex = input.readInt();
         double aLoc = input.readDouble();
         double bLoc = input.readDouble();
+        double aTime = input.readDouble();
+        double bTime = input.readDouble();
 
         Motor m = new Motor(stalkLength, stalkStiffness, springLength, springStiffness, bindTau, width);
-        m.bindRod(rods.get(aDex), aLoc, Motor.FRONT, -m.getBindTau()*Math.exp(1 - Math.random()));
+        m.bindRod(rods.get(aDex), aLoc, Motor.FRONT, 0);
+        m.bindRod(rods.get(bDex), bLoc, Motor.BACK, -m.getBindTau()*Math.exp(1 - Math.random()));
+
         return m;
 
     }
+
+    private void write(Motor motor) throws IOException{
+        output.writeInt(MYOSIN);
+        output.writeDouble(motor.stalkLength);
+        output.writeDouble(motor.stalkStiffness);
+        output.writeDouble(motor.springLength);
+        output.writeDouble(motor.springStiffness);
+        output.writeDouble(motor.getBindTau());
+        RigidRodAttachment a = motor.getBound(Motor.FRONT);
+        if(a==null){
+            output.writeInt(-1);
+        }else {
+            output.writeInt(rods.indexOf(a.rod));
+            output.writeDouble(a.loc);
+            output.writeDouble(motor.getTimeRemaining(Motor.FRONT));
+        }
+        RigidRodAttachment b = motor.getBound(Motor.FRONT);
+        if(b==null){
+            output.writeInt(-1);
+        } else{
+            output.writeInt(rods.indexOf(a.rod));
+            output.writeDouble(a.loc);
+            output.writeDouble(motor.getTimeRemaining(Motor.FRONT));
+        }
+    }
+
+
 
     private RigidRod readRigidRod() throws IOException {
         double l = input.readDouble();
@@ -137,9 +173,7 @@ public class RodIO implements AutoCloseable{
             output.writeDouble(p.z);
         }
     }
-    private void write(Motor motor) throws IOException{
 
-    }
 
     private void write(Spring spring) throws IOException {
         if(spring.a instanceof FixedForceAttachment){
@@ -161,8 +195,21 @@ public class RodIO implements AutoCloseable{
 
     }
 
-    private void writeFixedForce(Spring s){
+    private void writeFixedForce(Spring s) throws IOException {
         FixedForceAttachment at = (FixedForceAttachment)s.a;
+        int dex = rods.indexOf(at.getRod());
+        double ap = at.getAttachmentLocation();
+        Vector f = s.getForce();
+        double fx = f.dx*f.length;
+        double fy = f.dy*f.length;
+        double fz = f.dz*f.length;
+        output.writeInt(FIXED_FORCE);
+        output.writeInt(dex);
+        output.writeDouble(ap);
+        output.writeDouble(fx);
+        output.writeDouble(fy);
+        output.writeDouble(fz);
+
 
     }
 

@@ -18,17 +18,17 @@ public class Motor implements DrawableRod, UpdatableAgent{
     public final static int BACK = 1;
 
 
-    double stalkLength = 0.8;
-    double springLength = 0.2;
-    double springStiffness = 100;
-    double stalkStiffness = 1000;
+    public double stalkLength = 0.8;
+    public double springLength = 0.2;
+    public double springStiffness = 100;
+    public double stalkStiffness = 1000;
     double f0 = 1;
     double bindTau = 75;
     double width;
     RigidRodAttachment[] attachments = new RigidRodAttachment[2];
     public Spring[] springs = new Spring[2];
-    double[] bindTimes = new double[2];
-    double[] timeBound = new double[2];
+    public double[] bindTimes = new double[2];
+    public double[] timeBound = new double[2];
     Point[] points = new Point[2];
 
     double[] appliedForces = new double[6];
@@ -58,6 +58,9 @@ public class Motor implements DrawableRod, UpdatableAgent{
         springs[head] = s;
     }
 
+    public RigidRodAttachment getBound(int head){
+        return attachments[head];
+    }
 
     Attachment createAttachment(int head){
         return new Attachment(){
@@ -184,6 +187,10 @@ public class Motor implements DrawableRod, UpdatableAgent{
 
     public double getBindTau() {
         return bindTau;
+    }
+
+    public double getTimeRemaining(int head) {
+        return bindTimes[head] - timeBound[head];
     }
 }
 

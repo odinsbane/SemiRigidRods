@@ -46,8 +46,8 @@ public class MeasureCurvature {
         double[] cum = new double[BINS];
         double dx = (max - min)/BINS;
         for(int i = 0; i<x.length; i++){
-            //x[i] = Math.log(dx*(i + 0.5) + min);
-            x[i] = dx*(i + 0.5) + min;
+            x[i] = Math.log(dx*(i + 0.5) + min);
+            //x[i] = dx*(i + 0.5) + min;
         }
 
         double count = 0;
@@ -96,6 +96,8 @@ public class MeasureCurvature {
         mc.measureCurvature("14629775407131000001.dat");
         mc.measureCurvature("14629867066301000001.dat");
         mc.measureCurvature("14629885651411000001.dat");
+        mc.measureCurvature("1462976985411600000.dat");
+        mc.measureCurvature("14629769854111000001.dat");
 
 
 

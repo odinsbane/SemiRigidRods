@@ -21,6 +21,9 @@ public class FixedForceAttachment implements Attachment {
         vForce = new Vector(force[0], force[1], force[2]);
         vForce.length = vForce.length/100 + 0.2;
     }
+    public double getAttachmentLocation(){
+        return attachmentPoint;
+    }
     @Override
     public Point getAttachment() {
         rod.getPoint(attachmentPoint, loc);
@@ -32,6 +35,10 @@ public class FixedForceAttachment implements Attachment {
     @Override
     public void applyForce(Vector v) {
         rod.applyForce(force[0], force[1], force[2], attachmentPoint);
+    }
+
+    public RigidRod getRod() {
+        return rod;
     }
 }
 

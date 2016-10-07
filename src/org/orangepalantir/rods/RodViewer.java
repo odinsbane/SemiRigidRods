@@ -181,8 +181,8 @@ public class RodViewer {
                         g2d.drawLine((int)shiftA[0], (int)shiftA[1],(int)shiftB[0], (int)shiftB[1]);
                     }
                 }
-                g2d.setColor(Color.GREEN);
-                g2d.fillOval((int)Axy[0]-2, (int)Axy[1]-2, 4, 4);
+                //g2d.setColor(Color.GREEN);
+                //g2d.fillOval((int)Axy[0]-2, (int)Axy[1]-2, 4, 4);
 
 
 
