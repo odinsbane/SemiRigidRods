@@ -90,15 +90,7 @@ public class RodIO implements AutoCloseable{
         return new Spring(aa, ba, width);
     }
 
-    private Spring readFixedForce() throws IOException {
 
-        FixedForceAttachment ffa = new FixedForceAttachment(
-                rods.get(input.readInt()),
-                input.readDouble(),
-                new double[]{input.readDouble(), input.readDouble(), input.readDouble()}
-        );
-        return new Spring(ffa, ffa.getDanglingEnd(), width);
-    }
 
     private Motor readMotor() throws IOException {
         double stalkLength = input.readDouble();
@@ -202,6 +194,16 @@ public class RodIO implements AutoCloseable{
 
     }
 
+    private Spring readFixedForce() throws IOException {
+
+        FixedForceAttachment ffa = new FixedForceAttachment(
+                rods.get(input.readInt()),
+                input.readDouble(),
+                new double[]{input.readDouble(), input.readDouble(), input.readDouble()}
+        );
+        return new Spring(ffa, ffa.getDanglingEnd(), width);
+    }
+
     private void writeFixedForce(Spring s) throws IOException {
         FixedForceAttachment at = (FixedForceAttachment)s.a;
         int dex = rods.indexOf(at.getRod());
@@ -294,5 +296,9 @@ public class RodIO implements AutoCloseable{
 
     public List<RigidRod> getRods() {
         return rods;
+    }
+
+    public List<Spring> getSprings() {
+        return springs;
     }
 }

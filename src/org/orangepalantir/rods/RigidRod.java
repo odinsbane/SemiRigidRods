@@ -33,6 +33,9 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         kappa = bendingStiffness;
         Kspring = k/ds0;
         Kbend = kappa/(ds0*ds0);
+        appliedForces = new double[3*N];
+        totalForces = new double[3*N];
+
     }
 
     public RigidRod(Point center, Vector direction, int N, double length){
