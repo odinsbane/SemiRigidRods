@@ -8,10 +8,7 @@ import org.orangepalantir.rods.interactions.FixedForceAttachment;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -286,8 +283,12 @@ public class RodIO implements AutoCloseable{
     }
 
     public static RodIO loadRigidRod(Path path) throws IOException {
+        return loadRigidRod(new DataInputStream(Files.newInputStream(path)));
+    }
+
+    public static RodIO loadRigidRod(DataInputStream input) throws IOException {
         RodIO io = new RodIO(LOAD);
-        io.input = new DataInputStream(Files.newInputStream(path));
+        io.input = input;
         io.setRods(new ArrayList<>());
         io.setSprings(new ArrayList<>());
         io.loadData();
@@ -300,5 +301,46 @@ public class RodIO implements AutoCloseable{
 
     public List<Spring> getSprings() {
         return springs;
+    }
+
+    public static void main(String[] args){
+        RigidRod rod = new RigidRod(new Point(0.5, 0.5, 0.5), new Vector(1, 0, 0), 10, 2);
+        rod.setBendingStiffness(0.0166);
+        rod.setStiffness(100);
+        FixedForceAttachment force0 = new FixedForceAttachment(rod, -1, new double[]{0, 1, 0});
+        FixedForceAttachment force1 = new FixedForceAttachment(rod, 1, new double[]{0, 1, 0});
+        FixedForceAttachment force2 = new FixedForceAttachment(rod, 0, new double[]{0, -2, 0});
+        List<Spring> springs = new ArrayList<>();
+        springs.add(new Spring(force0, force0.getDanglingEnd(), 10));
+        springs.add(new Spring(force1, force1.getDanglingEnd(), 10));
+        springs.add(new Spring(force2, force2.getDanglingEnd(), 10));
+
+        List<RigidRod> rods = new ArrayList<>();
+        rods.add(rod);
+
+        for(Spring s: springs){
+            s.applyForces();
+        }
+        System.out.println(rod.prepareInternalForces());
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(buffer);
+
+        try(RodIO writer = RodIO.saveRigidRodSimulation();){
+            writer.setOutput(out);
+            writer.setRods(rods);
+            writer.setSprings(springs);
+            writer.setWidth(10);
+            writer.write();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = buffer.toByteArray();
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
+        try(RodIO reader = RodIO.loadRigidRod(in)){
+
+        }
+
+
     }
 }

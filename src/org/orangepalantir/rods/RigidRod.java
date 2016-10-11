@@ -473,5 +473,9 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
 
     }
 
+    public void setStiffness(double v) {
+        this.k = v;
+        Kspring = v/ds0;
+    }
 }
 
