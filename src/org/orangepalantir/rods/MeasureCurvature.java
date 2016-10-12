@@ -32,7 +32,8 @@ public class MeasureCurvature {
     }
 
     public void measureCurvature(Path path) throws IOException {
-        RodIO rodIo = RodIO.loadRigidRod(path);
+        RodIO rodIo = RodIO.createRodLoader();
+        rodIo.loadRods(path);
         List<RigidRod> rods = rodIo.getRods();
         List<double[]> raw = measureCurvatures(rods);
 

@@ -40,5 +40,11 @@ public class FixedForceAttachment implements Attachment {
     public RigidRod getRod() {
         return rod;
     }
+
+    public void getActualForce(double[] f){
+        f[0] = force[0];
+        f[1] = force[1];
+        f[2] = force[2];
+    }
 }
 

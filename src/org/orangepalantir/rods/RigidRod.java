@@ -29,6 +29,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         this.points = points;
         N = points.length;
         ds0 = length/(N-1);
+        this.length = length;
         k = springStiffness;
         kappa = bendingStiffness;
         Kspring = k/ds0;

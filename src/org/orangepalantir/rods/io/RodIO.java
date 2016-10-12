@@ -205,16 +205,14 @@ public class RodIO implements AutoCloseable{
         FixedForceAttachment at = (FixedForceAttachment)s.a;
         int dex = rods.indexOf(at.getRod());
         double ap = at.getAttachmentLocation();
-        Vector f = s.getForce();
-        double fx = f.dx*f.length;
-        double fy = f.dy*f.length;
-        double fz = f.dz*f.length;
+        double[] f = new double[3];
+        at.getActualForce(f);
         output.writeInt(FIXED_FORCE);
         output.writeInt(dex);
         output.writeDouble(ap);
-        output.writeDouble(fx);
-        output.writeDouble(fy);
-        output.writeDouble(fz);
+        output.writeDouble(f[0]);
+        output.writeDouble(f[1]);
+        output.writeDouble(f[2]);
 
 
     }
@@ -264,7 +262,7 @@ public class RodIO implements AutoCloseable{
                 output.close();
                 break;
             case LOAD:
-                output.close();
+                input.close();
                 break;
         }
     }
@@ -282,17 +280,18 @@ public class RodIO implements AutoCloseable{
         this.springs = springs;
     }
 
-    public static RodIO loadRigidRod(Path path) throws IOException {
-        return loadRigidRod(new DataInputStream(Files.newInputStream(path)));
+    public static RodIO createRodLoader(){
+        return new RodIO(LOAD);
+    }
+    public void loadRods(Path path) throws IOException {
+        loadRigidRod(new DataInputStream(Files.newInputStream(path)));
     }
 
-    public static RodIO loadRigidRod(DataInputStream input) throws IOException {
-        RodIO io = new RodIO(LOAD);
-        io.input = input;
-        io.setRods(new ArrayList<>());
-        io.setSprings(new ArrayList<>());
-        io.loadData();
-        return io;
+    public void loadRigidRod(DataInputStream input) throws IOException {
+        this.input = input;
+        setRods(new ArrayList<>());
+        setSprings(new ArrayList<>());
+        loadData();
     }
 
     public List<RigidRod> getRods() {
@@ -337,10 +336,18 @@ public class RodIO implements AutoCloseable{
         }
         byte[] bytes = buffer.toByteArray();
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
-        try(RodIO reader = RodIO.loadRigidRod(in)){
+        List<RigidRod> rods2 = new ArrayList<>();
+        List<Spring> springs2 = new ArrayList<>();
+        try(RodIO reader = RodIO.createRodLoader()){
+            reader.loadRigidRod(in);
+            rods2.addAll(reader.getRods());
+            springs2.addAll(reader.getSprings());
+        } catch (Exception e){
 
         }
-
+        System.out.println(rods2.size() + " rods and, " + springs2.size() + " springs");
+        springs2.forEach(Spring::applyForces);
+        rods2.forEach(r->{System.out.println(r.prepareInternalForces());});
 
     }
 }
