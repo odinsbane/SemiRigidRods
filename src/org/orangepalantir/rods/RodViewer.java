@@ -141,7 +141,7 @@ public class RodViewer {
                     float f = (float)(c/maxCurve);
                     color = new Color(f, 1, f);
                 } else{
-                    color = Color.WHITE;
+                    color = Color.BLUE;
                 }
 
                 getTransformed(points.get(i), Axy);
