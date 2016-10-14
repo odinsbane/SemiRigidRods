@@ -174,7 +174,7 @@ public class RodIO implements AutoCloseable{
     private void write(Spring spring) throws IOException {
         if(spring.a instanceof FixedForceAttachment){
             writeFixedForce(spring);
-        } else{
+        } else if(spring.a instanceof RigidRodAttachment && spring.b instanceof RigidRodAttachment){
             writeCrosslinker(spring);
         }
     }
@@ -245,13 +245,22 @@ public class RodIO implements AutoCloseable{
             write(rod);
         }
         for(Motor motor: motors){
-            springs.remove(motor.springs[0]);
+            /*
+            if(motor.springs[0]!=null && !springs.remove(motor.springs[0])){
+                System.out.println("failed to remove 0");
+            }
             springs.remove(motor.springs[1]);
+            if(motor.springs[1]!=null && !springs.remove(motor.springs[1])){
+                System.out.println("failed to remove 1");
+            }*/
+
             write(motor);
         }
+
         for(Spring spring: springs){
             write(spring);
         }
+
         output.writeInt(-1);
     }
 
@@ -316,6 +325,7 @@ public class RodIO implements AutoCloseable{
 
         List<RigidRod> rods = new ArrayList<>();
         rods.add(rod);
+        List<Motor> motors = new ArrayList<>();
 
         for(Spring s: springs){
             s.applyForces();
