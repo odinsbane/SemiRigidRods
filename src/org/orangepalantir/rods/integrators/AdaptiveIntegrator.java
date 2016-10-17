@@ -20,7 +20,7 @@ public class AdaptiveIntegrator {
     int positionValues;
     int forcesValues;
     double preparedForces = 0;
-    public void prepare(List<UpdatableAgent> agents){
+    public void prepare(List<? extends UpdatableAgent> agents){
         this.agents = new ArrayList<>(agents);
         int pTally = 0;
         int fTally = 0;
@@ -156,8 +156,11 @@ public class AdaptiveIntegrator {
                 if(DT>1e-3){
                     DT = 1e-3;
                 }
-                return preparedForces;
+                clearForces();
+                applyForces(springs);
+                return prepareInternalForces();
             } else{
+                restorePositions(0);
                 restoreForces(0);
                 DT=DT/2;
             }

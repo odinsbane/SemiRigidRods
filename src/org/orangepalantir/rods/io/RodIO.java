@@ -4,6 +4,7 @@ import org.orangepalantir.rods.Motor;
 import org.orangepalantir.rods.Point;
 import org.orangepalantir.rods.RigidRod;
 import org.orangepalantir.rods.Vector;
+import org.orangepalantir.rods.integrators.AdaptiveIntegrator;
 import org.orangepalantir.rods.interactions.FixedForceAttachment;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
@@ -13,7 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * For loading and saving rods.
@@ -303,9 +306,15 @@ public class RodIO implements AutoCloseable{
     }
 
     public static void main(String[] args){
-        RigidRod rod = new RigidRod(new Point(0.5, 0.5, 0.5), new Vector(1, 0, 0), 10, 2);
+        RigidRod rod = new RigidRod(new Point(0.5, 0.5, 0.5), new Vector(1, 0, 0), 3, 2);
+        RigidRod rod2 = new RigidRod(new Point(0.5, 0.29, 0.5), new Vector(1, 0, 0), 3, 2);
+
         rod.setBendingStiffness(0.0166);
         rod.setStiffness(100);
+
+        rod2.setBendingStiffness(0.0166);
+        rod2.setStiffness(100);
+
         FixedForceAttachment force0 = new FixedForceAttachment(rod, -1, new double[]{0, 1, 0});
         FixedForceAttachment force1 = new FixedForceAttachment(rod, 1, new double[]{0, 1, 0});
         FixedForceAttachment force2 = new FixedForceAttachment(rod, 0, new double[]{0, -2, 0});
@@ -314,14 +323,35 @@ public class RodIO implements AutoCloseable{
         springs.add(new Spring(force1, force1.getDanglingEnd(), 10));
         springs.add(new Spring(force2, force2.getDanglingEnd(), 10));
 
+        Spring link = new Spring(
+                new RigidRodAttachment(0, rod),
+                new RigidRodAttachment(0, rod2), 10);
+        link.setRestLength(0.2);
+        link.setStiffness(100);
+        springs.add(link);
+
+
         List<RigidRod> rods = new ArrayList<>();
         rods.add(rod);
+        rods.add(rod2);
         List<Motor> motors = new ArrayList<>();
 
-        for(Spring s: springs){
-            s.applyForces();
+        AdaptiveIntegrator integrator = new AdaptiveIntegrator();
+        integrator.prepare(rods);
+
+        double f = 0;
+        for(int i = 0; i<1000; i++) {
+            f = integrator.step(springs);
         }
-        System.out.println(rod.prepareInternalForces());
+
+        System.out.println(f);
+        rods.forEach(RigidRod::clearForces);
+        springs.forEach(Spring::applyForces);
+        double sum = rods.stream(
+        ).mapToDouble(
+                RigidRod::prepareInternalForces
+        ).sum();
+        System.out.println(sum);
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(buffer);
@@ -344,7 +374,7 @@ public class RodIO implements AutoCloseable{
             rods2.addAll(reader.getRods());
             springs2.addAll(reader.getSprings());
         } catch (Exception e){
-
+            e.printStackTrace();
         }
         System.out.println(rods2.size() + " rods and, " + springs2.size() + " springs");
         springs2.forEach(Spring::applyForces);

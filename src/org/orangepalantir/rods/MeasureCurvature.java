@@ -49,7 +49,7 @@ public class MeasureCurvature {
         for(RigidRod rod: rods){
             sum2 += rod.prepareInternalForces();
         }
-        sum2 = sum2/rods.size();
+        //sum2 = sum2/rods.size();
 
         double min = Double.MAX_VALUE;
         double max = -Double.MIN_VALUE;
