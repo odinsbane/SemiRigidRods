@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +33,7 @@ public class MeasureCurvature {
     }
 
     public void measureCurvature(Path path) throws IOException {
+        System.out.println("working on: " + path);
         RodIO rodIo = RodIO.createRodLoader();
         rodIo.loadRods(path);
         List<RigidRod> rods = rodIo.getRods();
@@ -123,21 +125,23 @@ public class MeasureCurvature {
     public static void main(String[] args) throws IOException {
         MeasureCurvature mc = new MeasureCurvature();
         String base;
-        base = "1462975597039";  //lf320
+        base = "small";
+        //base = "1462975597039";  //lf320
         //base = "1462977540713";  //lf500
         //base = "1462986706630"; //lf679
         //base = "1462988565141"; //lf800
+        Pattern pattern = Pattern.compile(base + "\\d+\\.dat");
         List<Path> paths = Files.list(Paths.get(".")).filter(p->
-            p.getFileName().toString().startsWith(base)
+            pattern.matcher(p.getFileName().toString()).matches()
         ).collect(Collectors.toList());
         paths.sort((a,b)->Long.compare(a.toFile().lastModified(), b.toFile().lastModified()));
-        paths.forEach(p->{
+        for(Path p: paths){
             try {
                 mc.measureCurvature(p);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }
 
     }
 }

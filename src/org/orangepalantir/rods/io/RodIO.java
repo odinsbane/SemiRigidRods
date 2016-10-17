@@ -245,15 +245,6 @@ public class RodIO implements AutoCloseable{
             write(rod);
         }
         for(Motor motor: motors){
-            /*
-            if(motor.springs[0]!=null && !springs.remove(motor.springs[0])){
-                System.out.println("failed to remove 0");
-            }
-            springs.remove(motor.springs[1]);
-            if(motor.springs[1]!=null && !springs.remove(motor.springs[1])){
-                System.out.println("failed to remove 1");
-            }*/
-
             write(motor);
         }
 
