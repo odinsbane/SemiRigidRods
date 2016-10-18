@@ -28,7 +28,6 @@ public class Spring {
         Point ptA = a.getAttachment();
         Point ptB = b.getAttachment();
         Vector v = getWrapped(ptA, ptB);
-
         double factor = v.length - s0;
         v.length = factor*k;
         return v;

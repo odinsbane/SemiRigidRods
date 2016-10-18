@@ -21,6 +21,7 @@ public class MeasureCurvature {
     int BINS = 2500;
     Graph graph;
     Graph graph2;
+    boolean GUI=false;
     static List<double[]> measureCurvatures(List<RigidRod> rods){
         return rods.stream().map(MeasureCurvature::measureCurvature).collect(Collectors.toList());
     }
@@ -40,7 +41,6 @@ public class MeasureCurvature {
         List<double[]> raw = measureCurvatures(rods);
 
         List<Spring> springs = rodIo.getSprings();
-
         for(Spring spring: springs){
             spring.applyForces();
         }
@@ -97,7 +97,7 @@ public class MeasureCurvature {
             graph.setTitle("Curvature Histogram: " + path);
             graph.setYRange(0, 1);
             graph.addData(x,y).setLabel(String.format("%f",sum2));
-            graph.show(true);
+            graph.show(false);
         } else{
             graph.addData(x,y).setLabel(String.format("%f",sum2));
             graph.refresh(true);
@@ -116,10 +116,14 @@ public class MeasureCurvature {
             graph2.addData(x,cum).setLabel(String.format("%f",sum2));
             graph2.refresh(true);
         }
-        /*RodViewer viewer = new RodViewer();
-        rods.forEach(viewer::addRod);
-        viewer.buildGui();
-        viewer.repaint();*/
+        if(GUI) {
+            RodViewer viewer = new RodViewer();
+            rods.forEach(viewer::addRod);
+            springs.forEach(viewer::addSpring);
+            viewer.setSimWidth(rodIo.getWidth());
+            viewer.buildGui();
+            viewer.repaint();
+        }
     }
 
     public static void main(String[] args) throws IOException {

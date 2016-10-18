@@ -49,6 +49,13 @@ public class AdaptiveIntegrator {
         }
     }
 
+    public void swapPositions(int i, int j){
+        double[] iArray = datas.get(i);
+        double[] jArray = datas.get(j);
+        datas.set(i, jArray);
+        datas.set(j, iArray);
+    }
+
     public void storeForces(int slot){
         double[] data = forces.get(slot);
         int offset = 0;
@@ -112,20 +119,18 @@ public class AdaptiveIntegrator {
 
     public double step(List<Spring> springs){
         double error;
+        clearForces();
+        storePositions(0);
+        applyForces(springs);
+        preparedForces = prepareInternalForces();
+        storeForces(0);
+        stepRods(DT);
+        storePositions(1);
+
+
         do {
-            clearForces();
-            //store the original positions.
-            storePositions(0);
-            //apply external forces.
-            applyForces(springs);
-            //prepare the internal forces.
-            preparedForces = prepareInternalForces();
-            //store forces
-            storeForces(0);
-            //take full step
-            stepRods(DT);
-            storePositions(1);
-            //restore 1st positions & 1st forces
+            //At the biggining of the loop 0 positions are starting, 0 forces initial forces.
+            // 1 position is the full dt step.
             restorePositions(0);
             restoreForces(0);
             //take half-step
@@ -149,8 +154,8 @@ public class AdaptiveIntegrator {
             // - accepted? adjust dt and forget everything.
             if (error < 1.5*TOL) {
                 double f = Math.sqrt(TOL/error);
-                if(f>1.2){
-                    f=1.2;
+                if(f>2){
+                    f=2;
                 }
                 DT = f*DT;
                 if(DT>1e-3){
@@ -160,8 +165,7 @@ public class AdaptiveIntegrator {
                 applyForces(springs);
                 return prepareInternalForces();
             } else{
-                restorePositions(0);
-                restoreForces(0);
+                swapPositions(2, 1);
                 DT=DT/2;
             }
         } while(error>=1.5*TOL);

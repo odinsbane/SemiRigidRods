@@ -95,8 +95,8 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         }
     }
 
+    final static double attempts = 3;
     public void step(double dt){
-        double attempts = 1;
         for(int j = 0; j<attempts; j++){
             for(int i = 0; i<N; i++) {
                 Point a = points[i];

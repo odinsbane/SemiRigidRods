@@ -38,6 +38,7 @@ public class RodIO implements AutoCloseable{
     DataInputStream input;
     double width = 10;
     long time;
+
     private RodIO(int mode){
         this.mode = mode;
     }
@@ -47,6 +48,7 @@ public class RodIO implements AutoCloseable{
         int read;
         time = input.readLong();
         width = input.readDouble();
+        System.out.println("width: " + width);
         do{
             try {
                 read = input.readInt();
@@ -75,6 +77,19 @@ public class RodIO implements AutoCloseable{
 
     }
 
+    private void writeCrosslinker(Spring s) throws IOException {
+        output.writeInt(CROSSLINKER);
+        output.writeDouble(s.getRestLength());
+        output.writeDouble(s.getStiffness());
+        RigidRodAttachment a = (RigidRodAttachment) s.a;
+        RigidRodAttachment b = (RigidRodAttachment) s.b;
+        output.writeInt(rods.indexOf(a.rod));
+        output.writeDouble(a.loc);
+        output.writeInt(rods.indexOf(b.rod));
+        output.writeDouble(b.loc);
+
+    }
+
     private Spring readCrossLinker() throws IOException {
         double l = input.readDouble();
         double k = input.readDouble();
@@ -87,7 +102,7 @@ public class RodIO implements AutoCloseable{
         Spring s = new Spring(aa, ba, width);
         s.setRestLength(l);
         s.setStiffness(k);
-        return new Spring(aa, ba, width);
+        return s;
     }
 
 
@@ -181,26 +196,16 @@ public class RodIO implements AutoCloseable{
             writeCrosslinker(spring);
         }
     }
-    private void writeCrosslinker(Spring s) throws IOException {
-        output.writeInt(CROSSLINKER);
-        output.writeDouble(s.getRestLength());
-        output.writeDouble(s.getStiffness());
-        RigidRodAttachment a = (RigidRodAttachment) s.a;
-        RigidRodAttachment b = (RigidRodAttachment) s.b;
-        output.writeInt(rods.indexOf(a.rod));
-        output.writeDouble(a.loc);
-        output.writeInt(rods.indexOf(b.rod));
-        output.writeDouble(b.loc);
 
-    }
 
     private Spring readFixedForce() throws IOException {
-
-        FixedForceAttachment ffa = new FixedForceAttachment(
-                rods.get(input.readInt()),
-                input.readDouble(),
-                new double[]{input.readDouble(), input.readDouble(), input.readDouble()}
-        );
+        int dex = input.readInt();
+        RigidRod r = rods.get(dex);
+        double loc = input.readDouble();
+        double fx = input.readDouble();
+        double fy = input.readDouble();
+        double fz = input.readDouble();
+        FixedForceAttachment ffa = new FixedForceAttachment(r, loc, new double[]{fx, fy, fz});
         return new Spring(ffa, ffa.getDanglingEnd(), width);
     }
 
@@ -216,8 +221,6 @@ public class RodIO implements AutoCloseable{
         output.writeDouble(f[0]);
         output.writeDouble(f[1]);
         output.writeDouble(f[2]);
-
-
     }
 
 
@@ -380,5 +383,9 @@ public class RodIO implements AutoCloseable{
         springs2.forEach(Spring::applyForces);
         rods2.forEach(r->{System.out.println(r.prepareInternalForces());});
 
+    }
+
+    public double getWidth() {
+        return width;
     }
 }
