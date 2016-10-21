@@ -6,7 +6,6 @@ import org.orangepalantir.rods.Point;
 import org.orangepalantir.rods.RigidRod;
 import org.orangepalantir.rods.RodViewer;
 import org.orangepalantir.rods.integrators.AdaptiveIntegrator;
-import org.orangepalantir.rods.integrators.UpdatableAgent;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
 import org.orangepalantir.rods.interactions.StaticAttachment;

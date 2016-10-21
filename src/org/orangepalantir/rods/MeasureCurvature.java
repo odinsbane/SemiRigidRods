@@ -83,8 +83,8 @@ public class MeasureCurvature {
         }
         double sum = 0;
         for(int i = 0; i<y.length; i++){
-            y[i] = y[i]/count;
-            sum += y[i];
+            y[i] = y[i];
+            sum += y[i]/count;
             cum[i] = sum;
         }
 
@@ -93,9 +93,8 @@ public class MeasureCurvature {
 
             graph= new Graph();
             graph.setXLabel("log(curvature (dt/ds))");
-            graph.setYLabel("count/total");
+            graph.setYLabel("count");
             graph.setTitle("Curvature Histogram: " + path);
-            graph.setYRange(0, 1);
             graph.addData(x,y).setLabel(String.format("%f",sum2));
             graph.show(false);
         } else{
@@ -129,7 +128,7 @@ public class MeasureCurvature {
     public static void main(String[] args) throws IOException {
         MeasureCurvature mc = new MeasureCurvature();
         String base;
-        base = "small";
+        base = "rr-small400-";
         //base = "1462975597039";  //lf320
         //base = "1462977540713";  //lf500
         //base = "1462986706630"; //lf679
