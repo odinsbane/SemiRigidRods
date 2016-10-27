@@ -1,6 +1,7 @@
 package org.orangepalantir.rods;
 
 import lightgraph.Graph;
+import org.orangepalantir.rods.interactions.FixedForceAttachment;
 import org.orangepalantir.rods.interactions.Spring;
 import org.orangepalantir.rods.io.RodIO;
 
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,10 +43,15 @@ public class MeasureCurvature {
         List<double[]> raw = measureCurvatures(rods);
 
         List<Spring> springs = rodIo.getSprings();
+        List<RigidRod> forced = new ArrayList<>();
         for(Spring spring: springs){
             spring.applyForces();
+            if(spring.a instanceof FixedForceAttachment){
+                FixedForceAttachment ffa = (FixedForceAttachment)spring.a;
+                forced.add(ffa.getRod());
+            }
         }
-
+        //raw = measureCurvatures(forced);
         double sum2 = 0;
         for(RigidRod rod: rods){
             sum2 += rod.prepareInternalForces();
@@ -128,12 +135,12 @@ public class MeasureCurvature {
     public static void main(String[] args) throws IOException {
         MeasureCurvature mc = new MeasureCurvature();
         String base;
-        base = "rr-small400-";
+        base = "moto-lf500-init-";
         //base = "1462975597039";  //lf320
         //base = "1462977540713";  //lf500
         //base = "1462986706630"; //lf679
         //base = "1462988565141"; //lf800
-        Pattern pattern = Pattern.compile(base + "\\d+\\.dat");
+        Pattern pattern = Pattern.compile(base + "\\d+s\\.dat");
         List<Path> paths = Files.list(Paths.get(".")).filter(p->
             pattern.matcher(p.getFileName().toString()).matches()
         ).collect(Collectors.toList());
