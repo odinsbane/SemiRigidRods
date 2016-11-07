@@ -5,6 +5,7 @@ import org.orangepalantir.rods.integrators.UpdatableAgent;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,16 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         Arrays.fill(appliedForces, 0.0);
     }
 
+    /**
+     * Find all the intesections of a sphere and a this rigid rod. Points will be found by
+     * @param center
+     * @param radius
+     * @return
+     */
+    public List<double[]> getIntersections(double[] center, double radius){
+        Point first = points[0];
+        
+    }
     public void applyForce(double fx, double fy, double fz, double location){
         double full = (location + length*0.5)/ds0;
         int dex = (int)(full);
