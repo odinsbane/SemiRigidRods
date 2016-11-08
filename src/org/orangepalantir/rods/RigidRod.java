@@ -75,9 +75,35 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
      * @param radius
      * @return
      */
-    public List<double[]> getIntersections(double[] center, double radius){
-        Point first = points[0];
-        
+    public double[] getIntersections(Point center, double radius){
+
+
+        double[] intersections = new double[5];
+        int count = 0;
+        boolean inside = v.length<=radius;
+        for(int i = 0; i<points.length-1; i++){
+            Point first = points[i];
+            Point second = points[i-1];
+            Vector v = new Vector(first, second);
+
+            Vector r = new Vector(center, first);
+
+            Vector rparallel = v.projection(r);
+            Vector rperp = r.minus(rparallel);
+            if(rperp.length>radius){
+                return new double[0];
+            }
+
+            double along = Math.sqrt(radius*radius - rperp.length*rperp.length);
+            double forward = rparallel.length + along;
+            double backward = rparallel.length - along;
+
+            if(forward>0 && forward<v.length){
+                intersections[count] = forward;
+            }
+        }
+
+        return Arrays.copyOf(intersections, count);
     }
     public void applyForce(double fx, double fy, double fz, double location){
         double full = (location + length*0.5)/ds0;
@@ -239,39 +265,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         return Math.sqrt(sum);
     }
 
-    final static double[] wide = createGaussianKernel(2);
-    final static double[] narrow = createGaussianKernel(1);
-    void smearForces(double[] applied, double[] total){
-        double[] kernel = wide;
-        int l = total.length/3;
-        for(int i = 0; i<l; i++){
-            total[3*i] = 0;
-            total[3*i+1] = 0;
-            total[3*i+2] = 0;
-            for(int j = 0; j<kernel.length; j++){
-                int dex = j+i - kernel.length/2;
-                dex = dex >= l?2*l - dex -1:dex;
-                dex = dex<0?-dex:dex;
-                total[3*i] += applied[3*dex]*kernel[j];
-                total[3*i+1] += applied[3*dex+1]*kernel[j];
-                total[3*i+2] += applied[3*dex+2]*kernel[j];
-            }
-        }
-    }
 
-    static double[] createGaussianKernel(double sigma){
-        int l = (int)(3*sigma)*2 + 1;
-        double[] kernel = new double[l];
-        double A = 1.0/Math.sqrt(2*Math.PI*sigma*sigma);
-        for(int i = -l/2; i>=l/2; i++){
-
-            kernel[i+l/2] = A*Math.exp(-0.5*Math.pow(i/sigma, 2));
-
-        }
-
-        return kernel;
-
-    }
 
     public double calculateStretchEnergy(){
         double energy = 0;

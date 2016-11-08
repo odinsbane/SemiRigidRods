@@ -19,7 +19,8 @@ public class FixedForceAttachment implements Attachment {
         this.attachmentPoint = attachmentPoint;
         this.force = force;
         vForce = new Vector(force[0], force[1], force[2]);
-        vForce.length = vForce.length/100 + 0.2;
+
+        vForce = new Vector(vForce.length/100 + 0.2, vForce);
     }
     public double getAttachmentLocation(){
         return attachmentPoint;

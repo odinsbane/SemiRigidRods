@@ -6,13 +6,13 @@ package org.orangepalantir.rods;
 public class Vector{
     public static final Vector ZERO = new Vector(0,0,0);
 
-    public double  dx, dy, dz;
-    public double length;
+    final public double  dx, dy, dz;
+    final public double length;
 
     public Vector(Point a, Point b){
-        dx = b.x - a.x;
-        dy = b.y - a.y;
-        dz = b.z - a.z;
+        double dx = b.x - a.x;
+        double dy = b.y - a.y;
+        double dz = b.z - a.z;
         length = Math.sqrt(dx*dx + dy*dy + dz*dz);
 
         if(length==0){
@@ -22,9 +22,9 @@ public class Vector{
             this.dz = 0;
 
         } else {
-            dx = dx / length;
-            dy = dy / length;
-            dz = dz / length;
+            this.dx = dx / length;
+            this.dy = dy / length;
+            this.dz = dz / length;
         }
 
 
@@ -59,11 +59,19 @@ public class Vector{
      */
     public Vector(double magnitude, Vector direction){
 
-        dx = direction.dx;
-        dy = direction.dy;
-        dz = direction.dz;
 
-        length = magnitude;
+        if(magnitude<0){
+            dx = -direction.dx;
+            dy = -direction.dy;
+            dz = -direction.dz;
+            length = -magnitude;
+        } else{
+            dx = direction.dx;
+            dy = direction.dy;
+            dz = direction.dz;
+            length = magnitude;
+        }
+
     }
 
     /**
@@ -75,6 +83,7 @@ public class Vector{
     public Vector projection(Vector other){
         double dot = other.dx*dx + other.dy*dy + other.dz*dz;
         Vector a = new Vector(dot*other.length, this);
+
         return a;
     }
 
@@ -101,9 +110,11 @@ public class Vector{
     /**
      * Sets the length to 1, unless the length is already 0.
      */
-    public void normalize(){
-        length = length==0?0:1;
+    public Vector normalize(){
+        return new Vector(1, this);
     }
 
-
+    public double dot(Vector v2){
+        return v2.length*length*(v2.dx*dx + v2.dy*dy + v2.dz*dz);
+    }
 }
