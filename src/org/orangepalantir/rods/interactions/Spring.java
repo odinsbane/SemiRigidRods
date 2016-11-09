@@ -29,14 +29,14 @@ public class Spring {
         Point ptB = b.getAttachment();
         Vector v = getWrapped(ptA, ptB);
         double factor = v.length - s0;
-        v.length = factor*k;
+        //v.length = factor*k;
         return v;
     }
 
     public void applyForces(){
         Vector force = getForce();
         a.applyForce(force);
-        force.length = -force.length;
+        force = new Vector(-force.length, force);
         b.applyForce(force);
     }
     double separation(Point a, Point b){

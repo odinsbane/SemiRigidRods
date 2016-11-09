@@ -80,12 +80,11 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
 
         double[] intersections = new double[5];
         int count = 0;
-        boolean inside = v.length<=radius;
         for(int i = 0; i<points.length-1; i++){
             Point first = points[i];
             Point second = points[i-1];
             Vector v = new Vector(first, second);
-
+            Vector t = v.normalize();
             Vector r = new Vector(center, first);
 
             Vector rparallel = v.projection(r);
@@ -95,12 +94,34 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
             }
 
             double along = Math.sqrt(radius*radius - rperp.length*rperp.length);
-            double forward = rparallel.length + along;
-            double backward = rparallel.length - along;
+
+            double dot = rparallel.dot(t);
+            double forward = dot + along;
+            double backward = dot - along;
 
             if(forward>0 && forward<v.length){
+                if(count==intersections.length){
+                    //what the hell?
+                    double[] ni = new double[intersections.length*2];
+                    System.arraycopy(intersections, 0, ni, 0, count);
+                }
+
                 intersections[count] = forward;
+                count++;
+
             }
+
+            if(backward>0 && backward<=v.length){
+                if(count==intersections.length){
+                    //what the hell?
+                    double[] ni = new double[intersections.length*2];
+                    System.arraycopy(intersections, 0, ni, 0, count);
+                }
+
+                intersections[count] = backward;
+                count++;
+            }
+
         }
 
         return Arrays.copyOf(intersections, count);

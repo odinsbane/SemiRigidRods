@@ -89,6 +89,20 @@ public class Motor implements DrawableRod, UpdatableAgent{
 
     }
 
+    public boolean isFree(){
+        return springs[0]==null && springs[1]==null;
+    }
+
+    /**
+     * Check if a head has zero stiffness.
+     * @return
+     */
+    public boolean hasFreeHead(){
+        if(springs[0]!=null && springs[0].getStiffness()==0) return true;
+        if(springs[1]!=null && springs[1].getStiffness()==0) return true;
+        return false;
+    }
+
     public void walk(Spring s, RigidRodAttachment a, double dt){
         Vector force = s.getForce();
         Vector tangent = a.rod.getTangent(a.loc);
@@ -99,12 +113,15 @@ public class Motor implements DrawableRod, UpdatableAgent{
         }
     }
 
+    public void removeSpring(int head){
+        springs[head] = null;
+    }
+
     public double prepareInternalForces(){
         System.arraycopy(appliedForces, 0, totalForces, 0, 6);
 
         Vector stalk = new Vector(points[BACK], points[FRONT]);
         double mag = -stalkStiffness*(stalkLength - stalk.length);
-        stalk.length = mag;
         totalForces[0] += -stalk.dx*mag;
         totalForces[1] += -stalk.dy*mag;
         totalForces[2] += -stalk.dz*mag;
