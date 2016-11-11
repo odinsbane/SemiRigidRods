@@ -209,5 +209,11 @@ public class Motor implements DrawableRod, UpdatableAgent{
     public double getTimeRemaining(int head) {
         return bindTimes[head] - timeBound[head];
     }
+
+    public void setPosition(int head, double[] pos) {
+        points[head].x = pos[0];
+        points[head].y = pos[1];
+        points[head].z = pos[2];
+    }
 }
 

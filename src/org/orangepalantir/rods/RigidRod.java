@@ -82,7 +82,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         int count = 0;
         for(int i = 0; i<points.length-1; i++){
             Point first = points[i];
-            Point second = points[i-1];
+            Point second = points[i+1];
             Vector v = new Vector(first, second);
             Vector t = v.normalize();
             Vector r = new Vector(center, first);
@@ -106,7 +106,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
                     System.arraycopy(intersections, 0, ni, 0, count);
                 }
 
-                intersections[count] = forward;
+                intersections[count] = forward + i*ds0;
                 count++;
 
             }
@@ -118,7 +118,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
                     System.arraycopy(intersections, 0, ni, 0, count);
                 }
 
-                intersections[count] = backward;
+                intersections[count] = backward + i*ds0;
                 count++;
             }
 
