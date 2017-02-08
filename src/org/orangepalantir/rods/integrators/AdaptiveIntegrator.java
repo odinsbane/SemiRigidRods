@@ -15,7 +15,7 @@ public class AdaptiveIntegrator {
     List<double[]> forces = new ArrayList<>();
     List<UpdatableAgent> agents;
     public double DT = 1e-3;
-    public double TOL = 1e-11;
+    public double TOL = 1e-4;
 
     int positionValues;
     int forcesValues;
