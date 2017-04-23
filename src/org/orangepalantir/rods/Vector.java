@@ -117,4 +117,5 @@ public class Vector{
     public double dot(Vector v2){
         return v2.length*length*(v2.dx*dx + v2.dy*dy + v2.dz*dz);
     }
+
 }

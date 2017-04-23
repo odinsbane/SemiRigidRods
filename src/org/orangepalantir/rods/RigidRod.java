@@ -153,6 +153,38 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         }
     }
 
+    public double getClosestApproach(RigidRod b, double width){
+        double[] x1 = new double[3];
+        double[] x2 = new double[3];
+
+        double min = Double.MAX_VALUE;
+        for(Point p: points){
+            for(Point o: b.points){
+                p.getPosition(x1);
+                o.getPosition(x2);
+                wrap(x1, x2, width);
+                double d = distSqd(x1, x2);
+                if(d<min){
+                    min = d;
+                }
+            }
+        }
+        return Math.sqrt(min);
+    }
+
+    static double distSqd(double[] a, double[] b){
+        double sum = 0;
+        double delta = b[0] - a[0];
+        sum += delta*delta;
+        delta = b[1] - a[1];
+        sum += delta*delta;
+        delta = b[2] - a[2];
+        sum += delta*delta;
+        return sum;
+    }
+
+
+
     final static double attempts = 2;
     public void step(double dt){
         for(int j = 0; j<attempts; j++){
@@ -301,6 +333,28 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         return energy;
 
     }
+
+
+    static double wrap(double origin, double target, double width){
+        double delta = target - origin;
+        return  delta > width/2 ? target - width :
+                delta < -width/2 ? target + width : target;
+    }
+
+    /**
+     * Modifies the target to be the closest position to the origin when using reflected coordinates.
+     *
+     * @param origin
+     * @param target
+     * @param width
+     * @return
+     */
+    static void wrap(double[] origin, double[] target, double width){
+        target[0] = wrap(origin[0], target[0], width);
+        target[1] = wrap(origin[1], target[1], width);
+        target[2] = wrap(origin[2], target[2], width);
+    }
+
     public double calculateBendEnergy(){
         double energy = 0;
         Vector t0 = new Vector(points[0], points[1]);

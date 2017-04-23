@@ -141,7 +141,16 @@ public class RodIO implements AutoCloseable{
         output.writeDouble(motor.springLength);
         output.writeDouble(motor.springStiffness);
         output.writeDouble(motor.getBindTau());
+        List<Point> points = motor.getPoints();
+        //front.
+        output.writeDouble(points.get(0).x);
+        output.writeDouble(points.get(0).y);
+        output.writeDouble(points.get(0).z);
 
+        //back.
+        output.writeDouble(points.get(1).x);
+        output.writeDouble(points.get(1).y);
+        output.writeDouble(points.get(1).z);
         RigidRodAttachment a = motor.getBound(Motor.FRONT);
         if(a==null){
             output.writeInt(-1);
@@ -281,7 +290,9 @@ public class RodIO implements AutoCloseable{
     public void setRods(List<RigidRod> rods) {
         this.rods = rods;
     }
-
+    public void setMotors(List<Motor> motors){
+        this.motors = motors;
+    }
     public void setSprings(List<Spring> springs){
         this.springs = springs;
     }
