@@ -116,6 +116,12 @@ public class RodIO implements AutoCloseable{
 
         Motor m = new Motor(stalkLength, stalkStiffness, springLength, springStiffness, bindTau, width);
 
+        //front.
+        double[] head = new double[]{input.readDouble(), input.readDouble(), input.readDouble()};
+        m.setPosition(Motor.FRONT, head);
+        double[] tail = {input.readDouble(), input.readDouble(), input.readDouble()};
+        m.setPosition(Motor.BACK, tail);
+
         int aDex = input.readInt();
         if(aDex>=0) {
             double aLoc = input.readDouble();
@@ -143,14 +149,14 @@ public class RodIO implements AutoCloseable{
         output.writeDouble(motor.getBindTau());
         List<Point> points = motor.getPoints();
         //front.
-        output.writeDouble(points.get(0).x);
-        output.writeDouble(points.get(0).y);
-        output.writeDouble(points.get(0).z);
+        output.writeDouble(points.get(Motor.FRONT).x);
+        output.writeDouble(points.get(Motor.FRONT).y);
+        output.writeDouble(points.get(Motor.FRONT).z);
 
         //back.
-        output.writeDouble(points.get(1).x);
-        output.writeDouble(points.get(1).y);
-        output.writeDouble(points.get(1).z);
+        output.writeDouble(points.get(Motor.BACK).x);
+        output.writeDouble(points.get(Motor.BACK).y);
+        output.writeDouble(points.get(Motor.BACK).z);
         RigidRodAttachment a = motor.getBound(Motor.FRONT);
         if(a==null){
             output.writeInt(-1);
