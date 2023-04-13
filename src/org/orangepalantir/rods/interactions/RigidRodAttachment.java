@@ -15,9 +15,12 @@ public class RigidRodAttachment implements Attachment {
         this.loc = loc;
         this.rod = rod;
     }
+    public void setRod(double loc, RigidRod rod){
+        this.rod = rod;
+        this.loc = loc;
+    }
     @Override
     public Point getAttachment() {
-
         rod.getPoint(loc, pt);
         return new Point(pt);
     }

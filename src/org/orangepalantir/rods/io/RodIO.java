@@ -245,7 +245,7 @@ public class RodIO implements AutoCloseable{
      * @throws IOException
      */
     public void setOutput(Path path) throws IOException {
-        setOutput(new DataOutputStream(Files.newOutputStream(path, StandardOpenOption.CREATE_NEW)));
+        setOutput(new DataOutputStream(Files.newOutputStream(path)));
     }
 
     public void setOutput(DataOutputStream out){

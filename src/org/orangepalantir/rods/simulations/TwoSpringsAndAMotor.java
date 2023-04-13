@@ -10,11 +10,13 @@ import org.orangepalantir.rods.integrators.UpdatableAgent;
 import org.orangepalantir.rods.interactions.RigidRodAttachment;
 import org.orangepalantir.rods.interactions.Spring;
 import org.orangepalantir.rods.interactions.StaticAttachment;
+import org.orangepalantir.rods.io.RodIO;
 
 import javax.imageio.ImageIO;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -157,13 +159,19 @@ public class TwoSpringsAndAMotor {
                     time += dt;
 
                     if(time - lastWrite >= 0.01 ){
-                        try {
+                        try(RodIO rio = RodIO.saveRigidRodSimulation();) {
                             String status = String.format("relaxed: %2.2f:  %2.4e     %2.4e , %07d", time, integrator.DT, s, counter);
                             viewer.setStatus(String.format(status));
                             viewer.repaint();
                             if(saving) {
                                 String fname = String.format("XX%s-%03d.png", tag, count++);
                                 ImageIO.write(viewer.display, "PNG", new File(out, fname));
+
+                                rio.setMotors(List.of(motor));
+                                rio.setSprings(springs);
+                                rio.setRods(rods);
+                                rio.setOutput(Paths.get("dats", String.format("t_%03d.dat", count)));
+                                rio.write();
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

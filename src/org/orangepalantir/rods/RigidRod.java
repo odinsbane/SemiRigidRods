@@ -153,6 +153,29 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         }
     }
 
+    public int[] getIndexesOfClosestApproach(RigidRod b, double width){
+        double[] x1 = new double[3];
+        double[] x2 = new double[3];
+
+        double min = Double.MAX_VALUE;
+        int[] dexes = { -1, -1};
+        for(int i = 0; i<points.length; i++){
+            Point p = points[i];
+            for(int j = 0; j<b.points.length; j++){
+                Point o = b.points[j];
+                p.getPosition(x1);
+                o.getPosition(x2);
+                wrap(x1, x2, width);
+                double d = distSqd(x1, x2);
+                if(d<min){
+                    min = d;
+                    dexes[0] = i;
+                    dexes[1] = j;
+                }
+            }
+        }
+        return dexes;
+    }
     public double getClosestApproach(RigidRod b, double width){
         double[] x1 = new double[3];
         double[] x2 = new double[3];
@@ -172,7 +195,7 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         return Math.sqrt(min);
     }
 
-    static double distSqd(double[] a, double[] b){
+    public static double distSqd(double[] a, double[] b){
         double sum = 0;
         double delta = b[0] - a[0];
         sum += delta*delta;
@@ -465,6 +488,12 @@ public class RigidRod implements DrawableRod, UpdatableAgent {
         p[0] = x + (p[0]-x)*f;
         p[1] = y + (p[1]-y)*f;
         p[2] = z + (p[2]-z)*f;
+
+    }
+
+    public double getSFromIndex(int dex){
+
+        return dex*length/points.length - length/2;
 
     }
 

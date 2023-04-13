@@ -42,20 +42,24 @@ public class Motor implements DrawableRod, UpdatableAgent{
         this.width = width;
         points[0] = new Point(0, 0, 0);
         points[1] = new Point(0, 0.8, 0);
+        attachments[FRONT] = new RigidRodAttachment(-1, null);
+        attachments[BACK] = new RigidRodAttachment(-1, null);
+        springs[FRONT] = new Spring(attachments[0], createAttachment(FRONT), Double.MAX_VALUE);
+        springs[BACK] = new Spring(attachments[BACK], createAttachment(BACK), Double.MAX_VALUE);
+        springs[FRONT].setRestLength(springLength);
+        springs[FRONT].setStiffness(springStiffness);
+        springs[BACK].setRestLength(springLength);
+        springs[BACK].setStiffness(springStiffness);
+    }
+
+    public void prepareHeads(){
+
     }
     public void bindRod(RigidRod rod, double location, int head, double duration){
-        RigidRodAttachment attachment = new RigidRodAttachment(location, rod);
-        Spring s = new Spring(
-                attachment,
-                createAttachment(head),
-                width
-        );
-        s.setRestLength(springLength);
-        s.setStiffness(springStiffness);
+
         bindTimes[head] = duration;
         timeBound[head] = 0;
-        attachments[head] = attachment;
-        springs[head] = s;
+        attachments[head].setRod(location, rod);
     }
 
     public RigidRodAttachment getBound(int head){
@@ -90,7 +94,7 @@ public class Motor implements DrawableRod, UpdatableAgent{
     }
 
     public boolean isFree(){
-        return springs[0]==null && springs[1]==null;
+        return attachments[0].rod==null && attachments[1].rod==null;
     }
 
     /**
@@ -214,6 +218,10 @@ public class Motor implements DrawableRod, UpdatableAgent{
         points[head].x = pos[0];
         points[head].y = pos[1];
         points[head].z = pos[2];
+    }
+
+    public void setSteppingForce(double myosinSteppingForce) {
+        f0 = myosinSteppingForce;
     }
 }
 
